@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load fa_digits %}
+{% block title %}داشبورد{% endblock %}
+{% block content %}
+<h1>داشبورد</h1>
+<h2>آخرین پرداخت‌ها</h2>
+<table class="fund-table">
+<thead><tr><th>واحد</th><th>پرداخت‌کننده</th><th>تاریخ</th><th>مبلغ (تومان)</th></tr></thead>
+<tbody>
+{% for p in payments %}
+<tr><td>{{ p.unit.number }}</td><td>{{ p.payer_name }}</td><td class="num">{{ p.paid_at|fa_date }}</td><td class="num">{{ p.amount|fa_num }}</td></tr>
+{% empty %}<tr><td colspan="4">موردی نیست.</td></tr>{% endfor %}
+</tbody>
+</table>
+<h2>آخرین مخارج</h2>
+<table class="fund-table">
+<thead><tr><th>نوع</th><th>تاریخ</th><th>مبلغ (تومان)</th><th>شرح</th></tr></thead>
+<tbody>
+{% for e in expenses %}
+<tr><td>{{ e.category.title }}</td><td class="num">{{ e.spent_at|fa_date }}</td><td class="num">{{ e.amount|fa_num }}</td><td>{{ e.description }}</td></tr>
+{% empty %}<tr><td colspan="4">موردی نیست.</td></tr>{% endfor %}
+</tbody>
+</table>
+{% endblock %}

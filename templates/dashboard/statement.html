@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load fa_digits %}
+{% block title %}صورت‌حساب{% endblock %}
+{% block content %}
+<h1>صورت‌حساب شارژها و مخارج</h1>
+<form method="get" class="no-print row g-2 mb-3">
+<div class="col-md-3"><input name="unit" class="form-control" placeholder="شماره واحد" value="{{ filters.unit }}"></div>
+<div class="col-md-3"><input name="year" class="form-control" placeholder="سال (مثل 1405)" value="{{ filters.year }}"></div>
+<div class="col-md-3"><select name="month" class="form-control">
+<option value="">همه ماه‌ها</option>
+{% for num, name in jalali_months %}
+<option value="{{ num }}"{% if filters.month == num|stringformat:"s" %} selected{% endif %}>{{ name }}</option>
+{% endfor %}
+</select></div>
+<div class="col-md-3"><button type="submit" class="btn btn-primary">فیلتر</button>
+<button type="button" class="btn btn-secondary" onclick="window.print()">چاپ</button></div>
+</form>
+<table class="fund-table">
+<thead><tr><th>جمع پرداخت‌ها</th><th>جمع مخارج</th><th>مانده</th></tr></thead>
+<tbody><tr><td class="num">{{ paid_total|fa_num }}</td><td class="num">{{ spent_total|fa_num }}</td><td class="num">{{ balance|fa_num }}</td></tr></tbody>
+</table>
+<h2>پرداخت‌ها</h2>
+<table class="fund-table">
+<thead><tr><th>واحد</th><th>سال</th><th>ماه</th><th>پرداخت‌کننده</th><th>تاریخ</th><th>مبلغ (تومان)</th></tr></thead>
+<tbody>
+{% for p in payments %}
+<tr><td>{{ p.unit.number }}</td><td>{{ p.year }}</td><td>{{ p.month_name }}</td>
+<td>{{ p.payer_name }}</td><td class="num">{{ p.paid_at|fa_date }}</td><td class="num">{{ p.amount|fa_num }}</td></tr>
+{% empty %}<tr><td colspan="6">موردی نیست.</td></tr>{% endfor %}
+</tbody>
+<tfoot><tr><td colspan="5">جمع پرداخت‌ها</td><td class="num">{{ paid_total|fa_num }}</td></tr></tfoot>
+</table>
+<h2>مخارج</h2>
+<table class="fund-table">
+<thead><tr><th>نوع</th><th>تاریخ</th><th>مبلغ (تومان)</th><th>شناسه قبض</th><th>شناسه پرداخت</th><th>شرح</th></tr></thead>
+<tbody>
+{% for e in expenses %}
+<tr><td>{{ e.category.title }}</td><td class="num">{{ e.spent_at|fa_date }}</td><td class="num">{{ e.amount|fa_num }}</td>
+<td>{{ e.bill_id|default:"—" }}</td><td>{{ e.payment_id|default:"—" }}</td><td>{{ e.description }}</td></tr>
+{% empty %}<tr><td colspan="6">موردی نیست.</td></tr>{% endfor %}
+</tbody>
+<tfoot><tr><td colspan="2">جمع مخارج</td><td class="num">{{ spent_total|fa_num }}</td><td colspan="3"></td></tr></tfoot>
+</table>
+{% endblock %}

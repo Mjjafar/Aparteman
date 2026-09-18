@@ -1,0 +1,167 @@
+[
+  {
+    "model": "units.unit",
+    "pk": 1,
+    "fields": {
+      "number": 1,
+      "owner_name": "مالک واحد ۱",
+      "owner_phone": "",
+      "tenant_name": "",
+      "tenant_phone": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "pk": 2,
+    "fields": {
+      "number": 2,
+      "owner_name": "مالک واحد ۲",
+      "owner_phone": "",
+      "tenant_name": "",
+      "tenant_phone": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "pk": 3,
+    "fields": {
+      "number": 3,
+      "owner_name": "مالک واحد ۳",
+      "owner_phone": "",
+      "tenant_name": "",
+      "tenant_phone": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "pk": 4,
+    "fields": {
+      "number": 4,
+      "owner_name": "مالک واحد ۴",
+      "owner_phone": "",
+      "tenant_name": "",
+      "tenant_phone": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "pk": 5,
+    "fields": {
+      "number": 5,
+      "owner_name": "مالک واحد ۵",
+      "owner_phone": "",
+      "tenant_name": "",
+      "tenant_phone": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "pk": 6,
+    "fields": {
+      "number": 6,
+      "owner_name": "مالک واحد ۶",
+      "owner_phone": "",
+      "tenant_name": "",
+      "tenant_phone": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "pk": 7,
+    "fields": {
+      "number": 7,
+      "owner_name": "مالک واحد ۷",
+      "owner_phone": "",
+      "tenant_name": "",
+      "tenant_phone": ""
+    }
+  },
+  {
+    "model": "expenses.expensecategory",
+    "pk": 1,
+    "fields": {
+      "title": "قبض آب",
+      "requires_bill_ids": true
+    }
+  },
+  {
+    "model": "expenses.expensecategory",
+    "pk": 2,
+    "fields": {
+      "title": "قبض گاز",
+      "requires_bill_ids": true
+    }
+  },
+  {
+    "model": "expenses.expensecategory",
+    "pk": 3,
+    "fields": {
+      "title": "قبض برق",
+      "requires_bill_ids": true
+    }
+  },
+  {
+    "model": "expenses.expensecategory",
+    "pk": 4,
+    "fields": {
+      "title": "نظافت",
+      "requires_bill_ids": false
+    }
+  },
+  {
+    "model": "expenses.expensecategory",
+    "pk": 5,
+    "fields": {
+      "title": "آسانسور",
+      "requires_bill_ids": false
+    }
+  },
+  {
+    "model": "expenses.expensecategory",
+    "pk": 6,
+    "fields": {
+      "title": "تعمیرات",
+      "requires_bill_ids": false
+    }
+  },
+  {
+    "model": "expenses.expensecategory",
+    "pk": 7,
+    "fields": {
+      "title": "حقوق سرایدار",
+      "requires_bill_ids": false
+    }
+  },
+  {
+    "model": "expenses.expensecategory",
+    "pk": 8,
+    "fields": {
+      "title": "سایر",
+      "requires_bill_ids": false
+    }
+  },
+  {
+    "model": "charges.incometype",
+    "pk": 1,
+    "fields": {
+      "title": "شارژ ماهیانه",
+      "is_charge": true
+    }
+  },
+  {
+    "model": "charges.incometype",
+    "pk": 2,
+    "fields": {
+      "title": "کمک تعمیرات",
+      "is_charge": false
+    }
+  },
+  {
+    "model": "charges.incometype",
+    "pk": 3,
+    "fields": {
+      "title": "سایر درآمدها",
+      "is_charge": false
+    }
+  }
+]

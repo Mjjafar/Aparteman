@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}تعریف ورود {{ unit }}{% endblock %}
+{% block content %}
+<h1>👤 تعریف نام کاربری و گذرواژه برای {{ unit }}</h1>
+<form method="post" class="pretty-form">{% csrf_token %}
+{% include "_form_fields.html" %}
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">💾 ذخیره</button>
+<a class="btn btn-secondary" href="{% url 'units:list' %}">بازگشت</a>
+</div></form>
+{% endblock %}

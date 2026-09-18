@@ -1,0 +1,27 @@
+{% if form.non_field_errors %}
+<div class="alert alert-danger">{{ form.non_field_errors }}</div>
+{% endif %}
+{% for field in form %}
+{% if field.name == 'is_charge' or field.name == 'requires_bill_ids' %}
+<div class="pretty-check mb-3">
+  {{ field }}
+  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {% if field.help_text %}<small class="form-text">{{ field.help_text }}</small>{% endif %}
+  {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+</div>
+{% else %}
+<div class="mb-3 pretty-field {% if field.errors %}has-error{% endif %}">
+  <label class="form-label" for="{{ field.id_for_label }}"><span class="field-icon">{% if 'password' in field.name %}🔑{% elif 'phone' in field.name %}📱{% elif 'amount' in field.name %}💰{% elif field.name == 'paid_at' or field.name == 'spent_at' or 'date' in field.name %}📅{% elif field.name == 'year' %}📆{% elif field.name == 'month' %}🗓️{% elif field.name == 'unit' or field.name == 'number' %}🏠{% elif 'bill' in field.name or field.name == 'payment_id' %}🔖{% elif 'receipt' in field.name %}🧾{% elif 'description' in field.name %}📄{% elif 'kind' in field.name or 'category' in field.name or 'type' in field.name %}📋{% elif 'user' in field.name %}👤{% elif 'name' in field.name or 'title' in field.name %}👤{% else %}📝{% endif %}</span> {{ field.label }}{% if field.field.required %} <span class="req">*</span>{% endif %}</label>
+  {% if 'password' in field.name %}
+  <div class="password-wrap">
+    {{ field }}
+    <button type="button" class="password-toggle" aria-label="نمایش گذرواژه">👁️</button>
+  </div>
+  {% else %}
+  {{ field }}
+  {% endif %}
+  {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+  {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+</div>
+{% endif %}
+{% endfor %}

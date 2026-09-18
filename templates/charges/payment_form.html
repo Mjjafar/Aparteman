@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ title|default:"ثبت پرداخت" }}{% endblock %}
+{% block content %}
+<h1>💰 {{ title|default:"ثبت پرداخت" }}</h1>
+<form method="post" class="pretty-form">{% csrf_token %}
+{% include "_form_fields.html" %}
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">💾 ذخیره</button>
+<a class="btn btn-secondary" href="{% url 'charges:list' %}">بازگشت</a>
+</div></form>
+{% endblock %}
+{% block extra_js %}
+<script>
+$(function () {
+  $('input[name="paid_at"]').persianDatepicker({ format: 'YYYY/MM/DD', autoClose: true, initialValue: false, initialValueType: 'persian' });
+
+  var unitSel = $('#id_unit');
+  var yearInput = $('#id_year');
+  var monthInput = $('#id_month');
+  var chargeInput = $('#id_charge_amount');
+  var amountInput = $('#id_amount');
+
+  function fetchCharge(autofillAmount) {
+    var unit = unitSel.val();
+    var year = yearInput.val();
+    var month = monthInput.val();
+    if (!unit || !year || !month) return;
+    $.getJSON("{% url 'charges:charge-amount' %}", {unit: unit, year: year, month: month})
+      .done(function (data) {
+        if (data.amount != null) {
+          chargeInput.val(data.amount);
+          if (autofillAmount) amountInput.val(data.amount);
+          amountInput.attr('max', data.amount);
+        } else {
+          chargeInput.val('');
+          amountInput.removeAttr('max');
+        }
+      });
+  }
+
+  unitSel.add(yearInput).add(monthInput).on('change', function () { fetchCharge(true); });
+  fetchCharge(false);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}حذف نوع مخارج{% endblock %}
+{% block content %}
+<h1>حذف نوع مخارج</h1>
+<p>آیا از حذف «{{ category }}» مطمئن هستید؟ این عمل قابل بازگشت نیست.</p>
+<form method="post">{% csrf_token %}
+<button type="submit" class="btn btn-danger">بله، حذف کن</button>
+<a class="btn btn-secondary" href="{% url 'expenses:categories' %}">انصراف</a></form>
+{% endblock %}

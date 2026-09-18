@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ورود — حساب ساختمان</title>
+<link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.rtl.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/custom.css' %}">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-icon">🏢</div>
+    <h1>حساب ساختمان</h1>
+    <p class="login-sub">مدیریت شارژ و مخارج آپارتمان</p>
+    {% if form.non_field_errors %}
+    <div class="login-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <p>
+        <label for="id_username">نام کاربری</label>
+        {{ form.username }}
+      </p>
+      <p>
+        <label for="id_password">گذرواژه</label>
+      </p>
+      <div class="password-wrap">
+        {{ form.password }}
+        <button type="button" class="password-toggle" id="passwordToggle" aria-label="نمایش گذرواژه">👁️</button>
+      </div>
+      <button type="submit" class="login-btn">ورود</button>
+    </form>
+  </div>
+</div>
+<script>
+(function () {
+  var toggle = document.getElementById('passwordToggle');
+  var input = document.getElementById('id_password');
+  if (!toggle || !input) return;
+  toggle.addEventListener('click', function () {
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    toggle.textContent = show ? '🙈' : '👁️';
+    toggle.setAttribute('aria-label', show ? 'پنهان کردن گذرواژه' : 'نمایش گذرواژه');
+  });
+})();
+</script>
+</body>
+</html>

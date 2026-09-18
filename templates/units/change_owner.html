@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}تغییر مالک {{ unit }}{% endblock %}
+{% block content %}
+<h1>🔄 تغییر مالک {{ unit }}</h1>
+<p>مالک فعلی: <strong>{{ unit.owner_name }}</strong> ({{ unit.owner_phone }})</p>
+<form method="post" class="pretty-form">{% csrf_token %}
+{% include "_form_fields.html" %}
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">💾 ثبت مالک جدید</button>
+<a class="btn btn-secondary" href="{% url 'units:detail' unit.pk %}">بازگشت</a>
+</div></form>
+{% endblock %}
+{% block extra_js %}
+<script>
+$(function () {
+  $('input[name="start_date"]').persianDatepicker({ format: 'YYYY/MM/DD', autoClose: true, initialValue: false, initialValueType: 'persian' });
+});
+</script>
+{% endblock %}

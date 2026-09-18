@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}مالکین واحدها{% endblock %}
+{% block content %}
+<h1>مالکین واحدها</h1>
+<table class="fund-table">
+<thead><tr><th>شماره واحد</th><th>نام مالک</th><th>موبایل مالک</th><th>عملیات</th></tr></thead>
+<tbody>
+{% for u in units %}
+<tr>
+<td>{{ u.number }}</td><td>{{ u.owner_name }}</td><td>{{ u.owner_phone }}</td>
+<td><a href="{% url 'units:edit' u.pk %}">ویرایش مالک</a></td>
+</tr>
+{% empty %}<tr><td colspan="4">واحدی ثبت نشده است.</td></tr>{% endfor %}
+</tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}انواع مخارج{% endblock %}
+{% block content %}
+<h1>انواع قبض‌ها و مخارج</h1>
+{% if messages %}
+{% for message in messages %}<div class="alert alert-danger">{{ message }}</div>{% endfor %}
+{% endif %}
+<table class="fund-table">
+<thead><tr><th>عنوان</th><th>نوع</th><th>عملیات</th></tr></thead>
+<tbody>
+{% for c in categories %}
+<tr>
+<td>{{ c.title }}</td>
+<td>{% if c.requires_bill_ids %}قبض (شناسه اجباری){% else %}هزینه{% endif %}</td>
+<td><a class="text-danger" href="{% url 'expenses:category-delete' c.pk %}">حذف</a></td>
+</tr>
+{% empty %}<tr><td colspan="3">موردی نیست.</td></tr>{% endfor %}
+</tbody>
+</table>
+<h2>نوع جدید</h2>
+<form method="post" class="pretty-form">{% csrf_token %}
+{% include "_form_fields.html" %}
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">💾 ذخیره</button>
+</div></form>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ title|default:"ثبت هزینه" }}{% endblock %}
+{% block content %}
+<h1>🧺 {{ title|default:"ثبت هزینه" }}</h1>
+<form method="post" enctype="multipart/form-data" class="pretty-form">{% csrf_token %}
+{% include "_form_fields.html" %}
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">💾 ذخیره</button>
+<a class="btn btn-secondary" href="{% url 'expenses:list' %}">بازگشت</a>
+</div></form>
+{% endblock %}
+{% block extra_js %}
+<script>
+$(function () {
+  $('input[name="spent_at"]').persianDatepicker({ format: 'YYYY/MM/DD', autoClose: true, initialValue: false, initialValueType: 'persian' });
+});
+</script>
+{% endblock %}

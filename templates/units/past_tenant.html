@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}درج سابقه سکونت گذشته {{ unit }}{% endblock %}
+{% block content %}
+<h1>📜 درج سابقه سکونت گذشته {{ unit }}</h1>
+<p class="text-muted">برای ثبت ساکنین قبل از شروع استفاده از سامانه، تاریخ شروع و پایان را وارد کنید.</p>
+<form method="post" class="pretty-form">{% csrf_token %}
+{% include "_form_fields.html" %}
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">💾 ذخیره سابقه</button>
+<a class="btn btn-secondary" href="{% url 'units:detail' unit.pk %}">بازگشت</a>
+</div></form>
+{% endblock %}
+{% block extra_js %}
+<script>
+$(function () {
+  $('input[name="start_date"], input[name="end_date"]').persianDatepicker({ format: 'YYYY/MM/DD', autoClose: true, initialValue: false, initialValueType: 'persian' });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% load static fa_digits %}
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}حساب ساختمان{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.rtl.min.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/datepicker/persian-datepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/custom.css' %}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="page-shell no-print">
+  <header class="topbar">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <a class="brand" href="{% url 'dashboard:home' %}">🏢 حساب ساختمان</a>
+      {% if user.is_authenticated %}
+      <div class="d-flex align-items-center gap-2 userbox">
+        <span class="username">{{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" class="d-inline">{% csrf_token %}<button type="submit" class="btn btn-sm btn-logout">خروج</button></form>
+      </div>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if user.is_authenticated and fund %}
+  <div class="container mt-3">
+    <div class="row g-3">
+      <div class="col-md-4"><div class="fund-card fund-paid"><span>جمع دریافتی</span><strong class="num">{{ fund.total_paid|fa_num }}</strong><small>تومان</small></div></div>
+      <div class="col-md-4"><div class="fund-card fund-spent"><span>جمع هزینه‌ها</span><strong class="num">{{ fund.total_spent|fa_num }}</strong><small>تومان</small></div></div>
+      <div class="col-md-4"><div class="fund-card fund-balance"><span>مانده صندوق</span><strong class="num">{{ fund.balance|fa_num }}</strong><small>تومان</small></div></div>
+    </div>
+  </div>
+  {% endif %}
+
+  <main class="container my-4">
+    <div class="row g-3">
+      <aside class="col-lg-3 col-md-4">
+        <nav class="side-menu">
+          <a class="menu-box" href="{% url 'dashboard:home' %}"><span class="menu-icon">📊</span><span>داشبورد</span></a>
+          <a class="menu-box" href="{% url 'dashboard:statement' %}"><span class="menu-icon">🧾</span><span>صورت‌حساب</span></a>
+          <a class="menu-box" href="{% url 'charges:list' %}"><span class="menu-icon">💰</span><span>پرداخت‌ها</span></a>
+          <a class="menu-box" href="{% url 'expenses:list' %}"><span class="menu-icon">🧺</span><span>هزینه‌ها</span></a>
+          {% if user.is_staff %}
+          <div class="menu-group">
+            <button type="button" class="menu-box menu-parent" data-bs-toggle="collapse" data-bs-target="#baseDefs" aria-expanded="false">
+              <span class="menu-icon">⚙️</span><span>تعاریف پایه</span><span class="menu-arrow">▾</span>
+            </button>
+            <div class="collapse" id="baseDefs">
+              <div class="menu-children">
+                <a class="menu-box menu-child" href="{% url 'units:list' %}"><span class="menu-icon">🏠</span><span>تعریف واحدهای ساختمان</span></a>
+                <a class="menu-box menu-child" href="{% url 'charges:plans' %}"><span class="menu-icon">💵</span><span>میزان حق شارژ</span></a>
+                <a class="menu-box menu-child" href="{% url 'expenses:categories' %}"><span class="menu-icon">🗂️</span><span>انواع هزینه‌ها</span></a>
+                <a class="menu-box menu-child" href="{% url 'charges:income-types' %}"><span class="menu-icon">📥</span><span>انواع درآمدها</span></a>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </nav>
+      </aside>
+      <section class="col-lg-9 col-md-8">
+        <div class="content-card">
+          {% block content %}{% endblock %}
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footerbar">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <span>📅 {{ today_jalali }}</span>
+      <span>🕐 <span id="liveClock">--:--:--</span></span>
+    </div>
+  </footer>
+</div>
+
+<div class="print-only">
+  {% block print_content %}{% endblock %}
+</div>
+
+<script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'vendor/datepicker/jquery.min.js' %}"></script>
+<script src="{% static 'vendor/datepicker/persian-date.min.js' %}"></script>
+<script src="{% static 'vendor/datepicker/persian-datepicker.min.js' %}"></script>
+<script>
+(function () {
+  var digits = '۰۱۲۳۴۵۶۷۸۹';
+  function fa(n) { return String(n).replace(/\d/g, function (d) { return digits[d]; }); }
+  function tick() {
+    var el = document.getElementById('liveClock');
+    if (!el) return;
+    var now = new Date();
+    var p = function (x) { return (x < 10 ? '0' : '') + x; };
+    el.textContent = fa(p(now.getHours()) + ':' + p(now.getMinutes()) + ':' + p(now.getSeconds()));
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+<script>
+(function () {
+  document.addEventListener('click', function (ev) {
+    var toggle = ev.target.closest('.password-toggle');
+    if (!toggle) return;
+    var wrap = toggle.closest('.password-wrap');
+    var input = wrap ? wrap.querySelector('input') : null;
+    if (!input) return;
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    toggle.textContent = show ? '🙈' : '👁️';
+    toggle.setAttribute('aria-label', show ? 'پنهان کردن گذرواژه' : 'نمایش گذرواژه');
+  });
+})();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

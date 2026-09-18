@@ -1,0 +1,14 @@
+[project]
+name = "aparteman"
+version = "0.1.0"
+description = "Apartment charge and expense accounting for a 7-unit building"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.2",
+    "jdatetime>=5.0",
+    "gunicorn>=21.0",
+    "whitenoise>=6.0",
+]
+
+[tool.uv]
+index-url = "https://repo.hmirror.ir/python/simple/"

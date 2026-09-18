@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load fa_digits %}
+{% block title %}پرداخت‌ها{% endblock %}
+{% block content %}
+<h1>پرداخت‌ها</h1>
+{% if user.is_staff %}
+<p><a class="btn btn-primary" href="{% url 'charges:create' %}">➕ ثبت پرداخت جدید</a></p>
+{% endif %}
+<table class="fund-table">
+<thead><tr><th>واحد</th><th>ساکن واحد</th><th>سال</th><th>ماه</th><th>نوع</th><th>تاریخ</th><th>مبلغ (تومان)</th>{% if user.is_staff %}<th>عملیات</th>{% endif %}</tr></thead>
+<tbody>
+{% for p in payments %}
+<tr>
+<td>{{ p.unit.number }}</td><td>{{ p.unit.tenant_name|default:p.unit.owner_name }}</td><td>{{ p.year }}</td><td>{{ p.month_name }}</td>
+<td>{{ p.get_kind_display }}</td>
+<td class="num">{{ p.paid_at|fa_date }}</td><td class="num">{{ p.amount|fa_num }}</td>
+{% if user.is_staff %}<td><a href="{% url 'charges:edit' p.pk %}">ویرایش</a> | <a class="text-danger" href="{% url 'charges:delete' p.pk %}">حذف</a></td>{% endif %}
+</tr>
+{% empty %}<tr><td colspan="8">موردی نیست.</td></tr>{% endfor %}
+</tbody>
+</table>
+{% endblock %}

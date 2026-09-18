@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}تعریف واحدها{% endblock %}
+{% block content %}
+<h1>تعریف واحدهای ساختمان</h1>
+<p><a class="btn btn-primary" href="{% url 'units:create' %}">➕ ثبت واحد جدید</a></p>
+<table class="fund-table">
+<thead><tr><th>شماره واحد</th><th>مالک</th><th>موبایل مالک</th><th>مستاجر</th><th>موبایل مستاجر</th><th>عملیات</th></tr></thead>
+<tbody>
+{% for u in units %}
+<tr>
+<td>{{ u.number }}</td><td>{{ u.owner_name }}</td><td>{{ u.owner_phone }}</td>
+<td>{{ u.tenant_name|default:"—" }}</td><td>{{ u.tenant_phone|default:"—" }}</td>
+<td><a href="{% url 'units:edit' u.pk %}">ویرایش</a> | <a href="{% url 'units:detail' u.pk %}">سوابق</a> | <a class="text-danger" href="{% url 'units:delete' u.pk %}">حذف</a></td>
+</tr>
+{% empty %}<tr><td colspan="6">واحدی ثبت نشده است.</td></tr>{% endfor %}
+</tbody>
+</table>
+{% endblock %}

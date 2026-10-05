@@ -8,6 +8,7 @@ dependencies = [
     "jdatetime>=5.0",
     "gunicorn>=21.0",
     "whitenoise>=6.0",
+    "openpyxl>=3.1.5",
 ]
 
 [tool.uv]

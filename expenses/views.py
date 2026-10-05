@@ -38,8 +38,35 @@ def expense_update(request, pk):
 
 @login_required
 def expense_list(request):
+    from django.db.models import Sum
+
     expenses = Expense.objects.select_related("category")
-    return render(request, "expenses/expense_list.html", {"expenses": expenses})
+    category_id = request.GET.get("category", "").strip()
+    if category_id:
+        expenses = expenses.filter(category_id=category_id)
+    filtered_total = expenses.aggregate(s=Sum("amount"))["s"] or 0
+    return render(
+        request,
+        "expenses/expense_list.html",
+        {
+            "expenses": expenses,
+            "categories": ExpenseCategory.objects.all(),
+            "filters": {"category": category_id},
+            "filtered_total": filtered_total,
+        },
+    )
+
+
+def next_category_code():
+    from expenses.models import ExpenseCategory
+
+    nums = []
+    for code in ExpenseCategory.objects.values_list("code", flat=True):
+        try:
+            nums.append(int(str(code).split("-")[-1]))
+        except (TypeError, ValueError):
+            continue
+    return f"EXP-{(max(nums) + 1) if nums else 1:03d}"
 
 
 @staff_member_required
@@ -48,7 +75,9 @@ def category_create(request):
     if request.method == "POST":
         form = ExpenseCategoryForm(request.POST)
         if form.is_valid():
-            form.save()
+            category = form.save(commit=False)
+            category.code = next_category_code()
+            category.save()
             return redirect("expenses:categories")
     else:
         form = ExpenseCategoryForm()

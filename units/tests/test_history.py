@@ -82,3 +82,36 @@ class UnitHistoryTest(TestCase):
         self.assertIn(resp.status_code, (302, 403))
         self.unit.refresh_from_db()
         self.assertEqual(self.unit.owner_name, "مالک اول")
+
+
+class ResidentAtTest(TestCase):
+    def test_returns_historical_tenant(self):
+        import datetime
+
+        from units.models import TenancyHistory, Unit
+
+        u = Unit.objects.create(
+            number=1, owner_name="مالک", owner_phone="09120000000",
+            tenant_name="فعلی", tenant_phone="09120000009",
+        )
+        TenancyHistory.objects.create(
+            unit=u, name="قدیمی", phone="09120000001",
+            start_date=datetime.date(2018, 1, 1),
+            end_date=datetime.date(2020, 6, 1),
+        )
+        self.assertEqual(u.resident_at(1397, 4), "قدیمی")
+
+    def test_falls_back_to_current_tenant(self):
+        from units.models import Unit
+
+        u = Unit.objects.create(
+            number=1, owner_name="مالک", owner_phone="09120000000",
+            tenant_name="فعلی", tenant_phone="09120000009",
+        )
+        self.assertEqual(u.resident_at(1405, 6), "فعلی")
+
+    def test_falls_back_to_owner_without_tenant(self):
+        from units.models import Unit
+
+        u = Unit.objects.create(number=1, owner_name="مالک", owner_phone="09120000000")
+        self.assertEqual(u.resident_at(1405, 6), "مالک")

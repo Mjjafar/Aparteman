@@ -3,13 +3,13 @@
 {% block content %}
 <h1>تعریف انواع درآمد</h1>
 <p><a class="btn btn-primary" href="{% url 'charges:income-type-create' %}">➕ نوع درآمد جدید</a></p>
-<table class="fund-table">
-<thead><tr><th>عنوان</th><th>شارژ ماهیانه؟</th><th>عملیات</th></tr></thead>
+<div class="table-scroll"><table class="fund-table">
+<thead><tr><th>کد</th><th>عنوان</th><th>توضیحات</th><th>شارژ ماهیانه؟</th><th>عملیات</th></tr></thead>
 <tbody>
 {% for t in types %}
-<tr><td>{{ t.title }}</td><td>{% if t.is_charge %}بله{% else %}خیر{% endif %}</td>
-<td><a class="text-danger" href="{% url 'charges:income-type-delete' t.pk %}">حذف</a></td></tr>
-{% empty %}<tr><td colspan="3">موردی ثبت نشده است.</td></tr>{% endfor %}
+<tr><td class="num">{{ t.code }}</td><td>{{ t.title }}</td><td>{{ t.description|default:"—" }}</td><td>{% if t.is_charge %}بله{% else %}خیر{% endif %}</td>
+<td class="row-actions"><a class="action-icon text-danger" href="{% url 'charges:income-type-delete' t.pk %}" title="حذف" aria-label="حذف">🗑️</a></td></tr>
+{% empty %}<tr><td colspan="5">موردی ثبت نشده است.</td></tr>{% endfor %}
 </tbody>
-</table>
+</table></div>
 {% endblock %}

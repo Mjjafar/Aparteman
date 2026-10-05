@@ -37,10 +37,42 @@ def payment_update(request, pk):
 
 @login_required
 def payment_list(request):
-    payments = Payment.objects.select_related("unit")
+    from config.jalali_forms import JALALI_MONTH_CHOICES
+
+    payments = Payment.objects.select_related("unit", "income_type")
     if not request.user.is_staff:
         payments = payments.filter(unit__user=request.user)
-    return render(request, "charges/payment_list.html", {"payments": payments})
+
+    year = request.GET.get("year", "").strip()
+    month = request.GET.get("month", "").strip()
+    income_type_id = request.GET.get("income_type", "").strip()
+    unit_no = request.GET.get("unit", "").strip()
+    if year:
+        payments = payments.filter(year=year)
+    if month:
+        payments = payments.filter(month=month)
+    if income_type_id:
+        payments = payments.filter(income_type_id=income_type_id)
+    if unit_no:
+        payments = payments.filter(unit__number=unit_no)
+
+    years = (
+        Payment.objects.order_by("year").values_list("year", flat=True).distinct()
+    )
+    from units.models import Unit
+
+    return render(
+        request,
+        "charges/payment_list.html",
+        {
+            "payments": payments,
+            "years": list(years),
+            "jalali_months": JALALI_MONTH_CHOICES,
+            "income_types": IncomeType.objects.all(),
+            "units": Unit.objects.order_by("number"),
+            "filters": {"year": year, "month": month, "income_type": income_type_id, "unit": unit_no},
+        },
+    )
 
 
 @staff_member_required
@@ -65,6 +97,22 @@ def chargeplan_create(request):
 
 
 @staff_member_required
+@require_http_methods(["GET", "POST"])
+def chargeplan_update(request, pk):
+    from charges.forms import ChargePlanForm
+
+    plan = get_object_or_404(ChargePlan, pk=pk)
+    if request.method == "POST":
+        form = ChargePlanForm(request.POST, instance=plan)
+        if form.is_valid():
+            form.save()
+            return redirect("charges:plans")
+    else:
+        form = ChargePlanForm(instance=plan)
+    return render(request, "charges/chargeplan_form.html", {"form": form, "title": "ویرایش حق شارژ"})
+
+
+@staff_member_required
 def incometype_list(request):
     types = IncomeType.objects.all()
     return render(request, "charges/incometype_list.html", {"types": types})
@@ -75,10 +123,21 @@ def incometype_list(request):
 def incometype_create(request):
     from charges.forms import IncomeTypeForm
 
+    def next_income_type_code():
+        nums = []
+        for code in IncomeType.objects.values_list("code", flat=True):
+            try:
+                nums.append(int(str(code).split("-")[-1]))
+            except (TypeError, ValueError):
+                continue
+        return f"INC-{(max(nums) + 1) if nums else 1:03d}"
+
     if request.method == "POST":
         form = IncomeTypeForm(request.POST)
         if form.is_valid():
-            form.save()
+            income_type = form.save(commit=False)
+            income_type.code = next_income_type_code()
+            income_type.save()
             return redirect("charges:income-types")
     else:
         form = IncomeTypeForm()

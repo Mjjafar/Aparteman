@@ -3,22 +3,34 @@
 {% block title %}داشبورد{% endblock %}
 {% block content %}
 <h1>داشبورد</h1>
-<h2>آخرین پرداخت‌ها</h2>
-<table class="fund-table">
-<thead><tr><th>واحد</th><th>پرداخت‌کننده</th><th>تاریخ</th><th>مبلغ (تومان)</th></tr></thead>
+<ul class="nav nav-tabs dash-tabs" role="tablist">
+<li class="nav-item" role="presentation">
+<button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-payments" role="tab" aria-selected="true">💰 آخرین پرداخت‌ها</button>
+</li>
+<li class="nav-item" role="presentation">
+<button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-expenses" role="tab" aria-selected="false">🧺 آخرین مخارج</button>
+</li>
+</ul>
+<div class="tab-content dash-tabpanes">
+<div class="tab-pane fade show active" id="tab-payments" role="tabpanel">
+<div class="table-scroll"><table class="fund-table">
+<thead><tr><th>ردیف</th><th>واحد</th><th>ساکن واحد</th><th>سال</th><th>ماه</th><th>نوع</th><th>مبلغ (تومان)</th></tr></thead>
 <tbody>
 {% for p in payments %}
-<tr><td>{{ p.unit.number }}</td><td>{{ p.payer_name }}</td><td class="num">{{ p.paid_at|fa_date }}</td><td class="num">{{ p.amount|fa_num }}</td></tr>
-{% empty %}<tr><td colspan="4">موردی نیست.</td></tr>{% endfor %}
+<tr><td class="num">{{ forloop.counter|fa_num }}</td><td>{{ p.unit.number }}</td><td>{{ p.resident_name }}</td><td>{{ p.year }}</td><td>{{ p.month_name }}</td><td>{% if p.income_type %}{{ p.income_type.title }}{% else %}{{ p.get_kind_display }}{% endif %}</td><td class="num">{{ p.amount|fa_num }}</td></tr>
+{% empty %}<tr><td colspan="7">موردی نیست.</td></tr>{% endfor %}
 </tbody>
-</table>
-<h2>آخرین مخارج</h2>
-<table class="fund-table">
-<thead><tr><th>نوع</th><th>تاریخ</th><th>مبلغ (تومان)</th><th>شرح</th></tr></thead>
+</table></div>
+</div>
+<div class="tab-pane fade" id="tab-expenses" role="tabpanel">
+<div class="table-scroll"><table class="fund-table">
+<thead><tr><th>ردیف</th><th>نوع</th><th>تاریخ</th><th>مبلغ (تومان)</th><th>شرح</th></tr></thead>
 <tbody>
 {% for e in expenses %}
-<tr><td>{{ e.category.title }}</td><td class="num">{{ e.spent_at|fa_date }}</td><td class="num">{{ e.amount|fa_num }}</td><td>{{ e.description }}</td></tr>
-{% empty %}<tr><td colspan="4">موردی نیست.</td></tr>{% endfor %}
+<tr><td class="num">{{ forloop.counter|fa_num }}</td><td>{{ e.category.title }}</td><td class="num">{{ e.spent_at|fa_date }}</td><td class="num">{{ e.amount|fa_num }}</td><td>{{ e.description }}</td></tr>
+{% empty %}<tr><td colspan="5">موردی نیست.</td></tr>{% endfor %}
 </tbody>
-</table>
+</table></div>
+</div>
+</div>
 {% endblock %}

@@ -12,6 +12,7 @@ urlpatterns = [
     path("<int:pk>/delete/", views.payment_delete, name="delete"),
     path("plans/", views.chargeplan_list, name="plans"),
     path("plans/new/", views.chargeplan_create, name="plan-create"),
+    path("plans/<int:pk>/edit/", views.chargeplan_update, name="plan-edit"),
     path("plans/<int:pk>/delete/", views.chargeplan_delete, name="plan-delete"),
     path("income-types/", views.incometype_list, name="income-types"),
     path("income-types/new/", views.incometype_create, name="income-type-create"),

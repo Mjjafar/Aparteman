@@ -8,7 +8,7 @@ from expenses.models import Expense, ExpenseCategory
 
 class ExpenseBillIdsTest(TestCase):
     def test_bill_category_requires_ids(self):
-        cat = ExpenseCategory.objects.create(title="قبض برق", requires_bill_ids=True)
+        cat = ExpenseCategory.objects.create(code="EXP-003", title="قبض برق مشاعات ساختمان", requires_bill_ids=True)
         e = Expense(
             category=cat, spent_at=datetime.date(2026, 9, 1),
             amount=150000, description="برق مشاع",
@@ -17,9 +17,20 @@ class ExpenseBillIdsTest(TestCase):
             e.full_clean()
 
     def test_repair_without_ids_ok(self):
-        cat = ExpenseCategory.objects.create(title="تعمیرات", requires_bill_ids=False)
+        cat = ExpenseCategory.objects.create(code="EXP-006", title="تعمیرات", requires_bill_ids=False)
         e = Expense(
             category=cat, spent_at=datetime.date(2026, 9, 1),
             amount=80000, description="قفل در",
         )
         e.full_clean()
+
+
+class ExpenseCategoryCodeTest(TestCase):
+    def test_code_unique_and_shown(self):
+        from django.db import IntegrityError
+
+        from expenses.models import ExpenseCategory
+
+        ExpenseCategory.objects.create(code="EXP-001", title="تست یک")
+        with self.assertRaises(IntegrityError):
+            ExpenseCategory.objects.create(code="EXP-001", title="تست دو")

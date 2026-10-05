@@ -22,13 +22,17 @@ def unit_balance(unit):
 
 
 def scoped_fund_summary(user):
-    """Fund cards: staff sees the whole building, a unit user sees only its unit."""
+    """Fund cards: everyone sees the whole-building totals; a unit user
+    additionally gets its own payments total as ``own_paid``."""
+    fund = fund_summary()
     if user.is_staff:
-        return fund_summary()
+        return fund
     from units.models import Unit
 
     unit = Unit.objects.filter(user=user).first()
     if unit is None:
-        return {"total_paid": 0, "total_spent": 0, "balance": 0}
+        return fund
     paid = Payment.objects.filter(unit=unit).aggregate(s=Sum("amount"))["s"] or 0
-    return {"total_paid": paid, "total_spent": 0, "balance": paid}
+    fund["own_paid"] = paid
+    fund["own_unit"] = unit
+    return fund

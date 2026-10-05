@@ -33,7 +33,7 @@ class ChargePlan(models.Model):
                 name="unique_plan_unit_year_months",
             )
         ]
-        ordering = ["unit__number", "-year", "-start_month"]
+        ordering = ["unit__number", "year", "start_month", "end_month"]
         verbose_name = "تعرفه شارژ"
         verbose_name_plural = "تعرفه‌های شارژ"
 
@@ -64,7 +64,9 @@ class ChargePlan(models.Model):
 
 
 class IncomeType(models.Model):
+    code = models.CharField("کد درآمد", max_length=20, unique=True)
     title = models.CharField("عنوان درآمد", max_length=100, unique=True)
+    description = models.CharField("توضیحات", max_length=255, blank=True, default="")
     is_charge = models.BooleanField(
         "شارژ ماهیانه است",
         default=False,
@@ -97,7 +99,7 @@ class Payment(models.Model):
         blank=True, default="",
     )
     payer_name = models.CharField("نام پرداخت‌کننده", max_length=100, blank=True, default="")
-    paid_at = models.DateField("تاریخ پرداخت")
+    paid_at = models.DateField("تاریخ پرداخت", null=True, blank=True)
     amount = models.PositiveIntegerField("مبلغ پرداختی (تومان)")
     kind = models.CharField("نوع پرداخت", max_length=10, choices=KIND_CHOICES, default="charge")
     income_type = models.ForeignKey(
@@ -107,7 +109,7 @@ class Payment(models.Model):
     description = models.CharField("توضیح", max_length=255, blank=True, default="")
 
     class Meta:
-        ordering = ["-paid_at"]
+        ordering = ["income_type__code", "year", "month", "unit__number"]
         verbose_name = "پرداخت"
         verbose_name_plural = "پرداخت‌ها"
         constraints = [
@@ -143,6 +145,11 @@ class Payment(models.Model):
         if not self.month:
             return "—"
         return JALALI_MONTHS[self.month - 1]
+
+    def resident_name(self):
+        if self.month:
+            return self.unit.resident_at(self.year, self.month)
+        return self.payer_name or self.unit.tenant_name or self.unit.owner_name
 
     def __str__(self):
         if self.kind == "charge" and self.month:

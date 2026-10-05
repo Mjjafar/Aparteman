@@ -2,20 +2,58 @@
 {% load fa_digits %}
 {% block title %}هزینه‌ها{% endblock %}
 {% block content %}
-<h1>هزینه‌ها</h1>
+<h1 class="page-head">هزینه‌ها
 {% if user.is_staff %}
-<p><a class="btn btn-primary" href="{% url 'expenses:create' %}">➕ ثبت هزینه جدید</a></p>
+<a class="btn btn-primary btn-sm page-head-btn" href="{% url 'expenses:create' %}">➕ ثبت هزینه جدید</a>
 {% endif %}
-<table class="fund-table">
-<thead><tr><th>نوع</th><th>تاریخ</th><th>مبلغ (تومان)</th><th>شناسه قبض</th><th>شناسه پرداخت</th><th>شرح</th>{% if user.is_staff %}<th>عملیات</th>{% endif %}</tr></thead>
+</h1>
+<div class="filter-bar filter-collapsible collapsed no-print">
+<button type="button" class="filter-toggle" aria-expanded="false">
+<span>🔍 فیلترها</span>
+{% if filters.category %}<span class="filter-active-dot" title="فیلتر فعال است">●</span>{% endif %}
+<span class="filter-chevron">▾</span>
+</button>
+<div class="filter-collapse">
+<form method="get" class="row g-3 align-items-end">
+<div class="col-md-4 col-12">
+<div class="filter-field">
+<label class="form-label filter-label" for="filter-category">📋 نوع هزینه</label>
+<select name="category" id="filter-category" class="form-control filter-select">
+<option value="">همه موارد</option>
+{% for c in categories %}
+<option value="{{ c.pk }}"{% if filters.category == c.pk|stringformat:"s" %} selected{% endif %}>{{ c.code }} — {{ c.title }}</option>
+{% endfor %}
+</select>
+</div>
+</div>
+<div class="col-md-8 col-12 filter-actions">
+<button type="submit" class="btn btn-primary">🔍 فیلتر</button>
+{% if filters.category %}<span class="filter-total">جمع: <strong class="num">{{ filtered_total|fa_num }}</strong> تومان</span>{% endif %}
+</div>
+</form>
+</div>
+</div>
+<div class="table-scroll"><table class="fund-table">
+<thead><tr><th>ردیف</th><th>نوع</th><th>تاریخ</th><th>مبلغ (تومان)</th><th>شناسه قبض</th><th>شناسه پرداخت</th><th>شرح</th>{% if user.is_staff %}<th>عملیات</th>{% endif %}</tr></thead>
 <tbody>
 {% for e in expenses %}
 <tr>
-<td>{{ e.category.title }}</td><td class="num">{{ e.spent_at|fa_date }}</td><td class="num">{{ e.amount|fa_num }}</td>
+<td class="num">{{ forloop.counter|fa_num }}</td><td>{{ e.category.title }}</td><td class="num">{{ e.spent_at|fa_date }}</td><td class="num">{{ e.amount|fa_num }}</td>
 <td>{{ e.bill_id|default:"—" }}</td><td>{{ e.payment_id|default:"—" }}</td><td>{{ e.description }}</td>
-{% if user.is_staff %}<td><a href="{% url 'expenses:edit' e.pk %}">ویرایش</a> | <a class="text-danger" href="{% url 'expenses:delete' e.pk %}">حذف</a></td>{% endif %}
+{% if user.is_staff %}<td class="row-actions"><a class="action-icon" href="{% url 'expenses:edit' e.pk %}" title="ویرایش" aria-label="ویرایش">✏️</a><a class="action-icon text-danger" href="{% url 'expenses:delete' e.pk %}" title="حذف" aria-label="حذف">🗑️</a></td>{% endif %}
 </tr>
-{% empty %}<tr><td colspan="7">موردی نیست.</td></tr>{% endfor %}
+{% empty %}<tr><td colspan="8">موردی نیست.</td></tr>{% endfor %}
 </tbody>
-</table>
+</table></div>
+<script>
+(function () {
+  var bar = document.querySelector('.filter-collapsible');
+  if (!bar) return;
+  var btn = bar.querySelector('.filter-toggle');
+  btn.addEventListener('click', function () {
+    var collapsed = bar.classList.toggle('collapsed');
+    btn.setAttribute('aria-expanded', String(!collapsed));
+  });
+})();
+</script>
 {% endblock %}

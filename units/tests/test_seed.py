@@ -10,5 +10,5 @@ class SeedTest(TestCase):
     def test_seven_units_and_bill_categories(self):
         self.assertEqual(Unit.objects.count(), 7)
         self.assertTrue(
-            ExpenseCategory.objects.filter(title="قبض برق", requires_bill_ids=True).exists()
+            ExpenseCategory.objects.filter(title="قبض برق مشاعات ساختمان", requires_bill_ids=True).exists()
         )

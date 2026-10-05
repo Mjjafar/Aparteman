@@ -25,16 +25,21 @@
   </header>
 
   {% if user.is_authenticated and fund %}
-  <div class="container mt-3">
-    <div class="row g-3">
-      <div class="col-md-4"><div class="fund-card fund-paid"><span>جمع دریافتی</span><strong class="num">{{ fund.total_paid|fa_num }}</strong><small>تومان</small></div></div>
-      <div class="col-md-4"><div class="fund-card fund-spent"><span>جمع هزینه‌ها</span><strong class="num">{{ fund.total_spent|fa_num }}</strong><small>تومان</small></div></div>
-      <div class="col-md-4"><div class="fund-card fund-balance"><span>مانده صندوق</span><strong class="num">{{ fund.balance|fa_num }}</strong><small>تومان</small></div></div>
+  <div class="fundbar">
+  <div class="container">
+    <div class="row g-3 fundbar-row">
+      <div class="col-4"><div class="fund-card fund-paid"><span>جمع کل درآمدها</span><strong class="num">{{ fund.total_paid|fa_num }}</strong><small>تومان</small></div></div>
+      <div class="col-4"><div class="fund-card fund-spent"><span>جمع کل هزینه‌ها</span><strong class="num">{{ fund.total_spent|fa_num }}</strong><small>تومان</small></div></div>
+      <div class="col-4"><div class="fund-card fund-balance"><span>مانده کل</span><strong class="num">{{ fund.balance|fa_num }}</strong><small>تومان</small></div></div>
+      {% if fund.own_paid is not None %}
+      <div class="col-12 col-md-4"><div class="fund-card fund-own"><span>مجموع پرداختی‌های این واحد ({{ fund.own_unit }})</span><strong class="num">{{ fund.own_paid|fa_num }}</strong><small>تومان</small></div></div>
+      {% endif %}
     </div>
+  </div>
   </div>
   {% endif %}
 
-  <main class="container my-4">
+  <main class="container main-body">
     <div class="row g-3">
       <aside class="col-lg-3 col-md-4">
         <nav class="side-menu">

@@ -4,13 +4,13 @@
 {% block content %}
 <h1>تعریف میزان حق شارژ ماهیانه</h1>
 <p><a class="btn btn-primary" href="{% url 'charges:plan-create' %}">➕ تعریف حق شارژ جدید</a></p>
-<table class="fund-table">
-<thead><tr><th>واحد</th><th>سال</th><th>ماه شروع</th><th>ماه پایان</th><th>مبلغ (تومان)</th><th>عملیات</th></tr></thead>
+<div class="table-scroll"><table class="fund-table">
+<thead><tr><th>ردیف</th><th>واحد</th><th>ساکن واحد</th><th>سال</th><th>ماه شروع</th><th>ماه پایان</th><th>مبلغ (تومان)</th><th>عملیات</th></tr></thead>
 <tbody>
 {% for p in plans %}
-<tr><td>{{ p.unit }}</td><td>{{ p.year }}</td><td>{{ p.start_month_name }}</td><td>{{ p.end_month_name }}</td><td class="num">{{ p.amount|fa_num }}</td>
-<td><a class="text-danger" href="{% url 'charges:plan-delete' p.pk %}">حذف</a></td></tr>
-{% empty %}<tr><td colspan="6">تعرفه‌ای ثبت نشده است.</td></tr>{% endfor %}
+<tr><td class="num">{{ forloop.counter|fa_num }}</td><td>{{ p.unit }}</td><td>{{ p.unit.tenant_name|default:p.unit.owner_name }}</td><td>{{ p.year }}</td><td>{{ p.start_month_name }}</td><td>{{ p.end_month_name }}</td><td class="num">{{ p.amount|fa_num }}</td>
+<td class="row-actions"><a class="action-icon" href="{% url 'charges:plan-edit' p.pk %}" title="ویرایش" aria-label="ویرایش">✏️</a><a class="action-icon text-danger" href="{% url 'charges:plan-delete' p.pk %}" title="حذف" aria-label="حذف">🗑️</a></td></tr>
+{% empty %}<tr><td colspan="8">تعرفه‌ای ثبت نشده است.</td></tr>{% endfor %}
 </tbody>
-</table>
+</table></div>
 {% endblock %}

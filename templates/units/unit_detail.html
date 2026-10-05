@@ -4,16 +4,16 @@
 {% block content %}
 <h1>🏠 {{ unit }}</h1>
 
-<table class="fund-table">
+<div class="table-scroll"><table class="fund-table">
 <thead><tr><th>نام مالک فعلی</th><th>موبایل مالک</th><th>نام مستاجر فعلی</th><th>موبایل مستاجر</th></tr></thead>
 <tbody><tr>
 <td>{{ unit.owner_name }}</td><td>{{ unit.owner_phone }}</td>
 <td>{{ unit.tenant_name|default:"—" }}</td><td>{{ unit.tenant_phone|default:"—" }}</td>
 </tr></tbody>
-</table>
+</table></div>
 
 <p>
-<a class="btn btn-primary btn-sm" href="{% url 'units:edit' unit.pk %}">ویرایش مشخصات</a>
+<a class="btn btn-primary btn-sm" href="{% url 'units:edit' unit.pk %}">✏️ ویرایش مشخصات</a>
 <a class="btn btn-warning btn-sm" href="{% url 'units:change-owner' unit.pk %}">🔄 تغییر مالک</a>
 <a class="btn btn-warning btn-sm" href="{% url 'units:change-tenant' unit.pk %}">🔄 تغییر مستاجر</a>
 <a class="btn btn-secondary btn-sm" href="{% url 'units:list' %}">بازگشت به لیست</a>
@@ -23,7 +23,7 @@
 <p>
 <a class="btn btn-outline-primary btn-sm" href="{% url 'units:past-owner' unit.pk %}">➕ درج سابقه مالکیت گذشته</a>
 </p>
-<table class="fund-table">
+<div class="table-scroll"><table class="fund-table">
 <thead><tr><th>نام مالک</th><th>موبایل</th><th>از تاریخ</th><th>تا تاریخ</th><th>وضعیت</th><th>عملیات</th></tr></thead>
 <tbody>
 {% for o in unit.ownerships.all %}
@@ -32,17 +32,17 @@
 <td class="num">{{ o.start_date|fa_date }}</td>
 <td class="num">{{ o.end_date|fa_date }}</td>
 <td>{% if o.end_date %}پایان‌یافته{% else %}فعلی{% endif %}</td>
-<td><a class="text-danger" href="{% url 'units:ownership-delete' o.pk %}">حذف</a></td>
+<td class="row-actions"><a class="action-icon text-danger" href="{% url 'units:ownership-delete' o.pk %}" title="حذف" aria-label="حذف">🗑️</a></td>
 </tr>
 {% empty %}<tr><td colspan="6">سابقه‌ای ثبت نشده است.</td></tr>{% endfor %}
 </tbody>
-</table>
+</table></div>
 
 <h2>📜 سوابق سکونت</h2>
 <p>
 <a class="btn btn-outline-primary btn-sm" href="{% url 'units:past-tenant' unit.pk %}">➕ درج سابقه سکونت گذشته</a>
 </p>
-<table class="fund-table">
+<div class="table-scroll"><table class="fund-table">
 <thead><tr><th>نام مستاجر</th><th>موبایل</th><th>از تاریخ</th><th>تا تاریخ</th><th>وضعیت</th><th>عملیات</th></tr></thead>
 <tbody>
 {% for t in unit.tenancies.all %}
@@ -51,9 +51,9 @@
 <td class="num">{{ t.start_date|fa_date }}</td>
 <td class="num">{{ t.end_date|fa_date }}</td>
 <td>{% if t.end_date %}پایان‌یافته{% else %}فعلی{% endif %}</td>
-<td><a class="text-danger" href="{% url 'units:tenancy-delete' t.pk %}">حذف</a></td>
+<td class="row-actions"><a class="action-icon text-danger" href="{% url 'units:tenancy-delete' t.pk %}" title="حذف" aria-label="حذف">🗑️</a></td>
 </tr>
 {% empty %}<tr><td colspan="6">سابقه‌ای ثبت نشده است.</td></tr>{% endfor %}
 </tbody>
-</table>
+</table></div>
 {% endblock %}

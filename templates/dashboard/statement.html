@@ -4,7 +4,6 @@
 {% block content %}
 <h1>صورت‌حساب شارژها و مخارج</h1>
 <form method="get" class="no-print row g-2 mb-3">
-<div class="col-md-3"><input name="unit" class="form-control" placeholder="شماره واحد" value="{{ filters.unit }}"></div>
 <div class="col-md-3"><input name="year" class="form-control" placeholder="سال (مثل 1405)" value="{{ filters.year }}"></div>
 <div class="col-md-3"><select name="month" class="form-control">
 <option value="">همه ماه‌ها</option>
@@ -15,30 +14,67 @@
 <div class="col-md-3"><button type="submit" class="btn btn-primary">فیلتر</button>
 <button type="button" class="btn btn-secondary" onclick="window.print()">چاپ</button></div>
 </form>
-<table class="fund-table">
+<div class="table-scroll"><table class="fund-table">
 <thead><tr><th>جمع پرداخت‌ها</th><th>جمع مخارج</th><th>مانده</th></tr></thead>
 <tbody><tr><td class="num">{{ paid_total|fa_num }}</td><td class="num">{{ spent_total|fa_num }}</td><td class="num">{{ balance|fa_num }}</td></tr></tbody>
-</table>
-<h2>پرداخت‌ها</h2>
-<table class="fund-table">
-<thead><tr><th>واحد</th><th>سال</th><th>ماه</th><th>پرداخت‌کننده</th><th>تاریخ</th><th>مبلغ (تومان)</th></tr></thead>
+</table></div>
+<ul class="nav nav-tabs dash-tabs" role="tablist">
+<li class="nav-item" role="presentation">
+<button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-st-payments" role="tab" aria-selected="true">💰 درآمدهای پرداختی</button>
+</li>
+<li class="nav-item" role="presentation">
+<button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-st-expenses" role="tab" aria-selected="false">🧺 هزینه‌های صورت گرفته</button>
+</li>
+</ul>
+<div class="tab-content dash-tabpanes">
+<div class="tab-pane fade show active" id="tab-st-payments" role="tabpanel">
+<div class="table-scroll"><table class="fund-table">
+<thead><tr><th></th><th>ردیف</th><th>سال</th><th>مجموع درآمدهای پرداختی (تومان)</th><th>تعداد موارد درآمدی</th></tr></thead>
 <tbody>
-{% for p in payments %}
-<tr><td>{{ p.unit.number }}</td><td>{{ p.year }}</td><td>{{ p.month_name }}</td>
-<td>{{ p.payer_name }}</td><td class="num">{{ p.paid_at|fa_date }}</td><td class="num">{{ p.amount|fa_num }}</td></tr>
-{% empty %}<tr><td colspan="6">موردی نیست.</td></tr>{% endfor %}
+{% for g in payment_years %}
+<tr class="year-group-{{ g.year }} year-row">
+<td><button type="button" class="btn btn-sm btn-outline-primary year-toggle no-print" data-target="year-months-{{ g.year }}" aria-expanded="false">▸</button></td>
+<td class="num">{{ forloop.counter|fa_num }}</td><td>{{ g.year }}</td><td class="num">{{ g.total|fa_num }}</td><td class="num">{{ g.count|fa_num }}</td></tr>
+{% for r in g.months %}
+<tr class="year-months-{{ g.year }} month-row" style="display:none">
+<td></td><td class="num">{{ forloop.counter|fa_num }}</td><td>{{ r.month_name }}</td><td class="num">{{ r.total|fa_num }}</td><td class="num">{{ r.count|fa_num }}</td></tr>
+{% endfor %}
+{% empty %}<tr><td colspan="5">موردی نیست.</td></tr>{% endfor %}
 </tbody>
-<tfoot><tr><td colspan="5">جمع پرداخت‌ها</td><td class="num">{{ paid_total|fa_num }}</td></tr></tfoot>
-</table>
-<h2>مخارج</h2>
-<table class="fund-table">
-<thead><tr><th>نوع</th><th>تاریخ</th><th>مبلغ (تومان)</th><th>شناسه قبض</th><th>شناسه پرداخت</th><th>شرح</th></tr></thead>
+<tfoot><tr><td colspan="3">جمع پرداخت‌ها</td><td class="num">{{ paid_total|fa_num }}</td><td></td></tr></tfoot>
+</table></div>
+</div>
+<div class="tab-pane fade" id="tab-st-expenses" role="tabpanel">
+<div class="table-scroll"><table class="fund-table">
+<thead><tr><th></th><th>ردیف</th><th>سال</th><th>مجموع هزینه‌ها (تومان)</th><th>تعداد موارد هزینه</th></tr></thead>
 <tbody>
-{% for e in expenses %}
-<tr><td>{{ e.category.title }}</td><td class="num">{{ e.spent_at|fa_date }}</td><td class="num">{{ e.amount|fa_num }}</td>
-<td>{{ e.bill_id|default:"—" }}</td><td>{{ e.payment_id|default:"—" }}</td><td>{{ e.description }}</td></tr>
-{% empty %}<tr><td colspan="6">موردی نیست.</td></tr>{% endfor %}
+{% for g in expense_years %}
+<tr class="exp-year-group-{{ g.year|default:'none' }} year-row">
+<td><button type="button" class="btn btn-sm btn-outline-primary year-toggle no-print" data-target="exp-year-months-{{ g.year|default:'none' }}" aria-expanded="false">▸</button></td>
+<td class="num">{{ forloop.counter|fa_num }}</td><td>{{ g.year|default:"—" }}</td><td class="num">{{ g.total|fa_num }}</td><td class="num">{{ g.count|fa_num }}</td></tr>
+{% for r in g.months %}
+<tr class="exp-year-months-{{ g.year|default:'none' }} month-row" style="display:none">
+<td></td><td class="num">{{ forloop.counter|fa_num }}</td><td>{{ r.month_name }}</td><td class="num">{{ r.total|fa_num }}</td><td class="num">{{ r.count|fa_num }}</td></tr>
+{% endfor %}
+{% empty %}<tr><td colspan="5">موردی نیست.</td></tr>{% endfor %}
 </tbody>
-<tfoot><tr><td colspan="2">جمع مخارج</td><td class="num">{{ spent_total|fa_num }}</td><td colspan="3"></td></tr></tfoot>
-</table>
+<tfoot><tr><td colspan="3">جمع مخارج</td><td class="num">{{ spent_total|fa_num }}</td><td></td></tr></tfoot>
+</table></div>
+</div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('.year-toggle');
+    if (!btn) return;
+    var rows = document.querySelectorAll('.' + btn.dataset.target);
+    var open = btn.getAttribute('aria-expanded') === 'true';
+    rows.forEach(function (r) { r.style.display = open ? 'none' : ''; });
+    btn.setAttribute('aria-expanded', String(!open));
+    btn.textContent = open ? '▸' : '▾';
+  });
+})();
+</script>
 {% endblock %}

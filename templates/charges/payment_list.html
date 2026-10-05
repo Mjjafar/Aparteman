@@ -2,21 +2,91 @@
 {% load fa_digits %}
 {% block title %}پرداخت‌ها{% endblock %}
 {% block content %}
-<h1>پرداخت‌ها</h1>
+<h1 class="page-head">پرداخت‌ها
 {% if user.is_staff %}
-<p><a class="btn btn-primary" href="{% url 'charges:create' %}">➕ ثبت پرداخت جدید</a></p>
+<a class="btn btn-primary btn-sm page-head-btn" href="{% url 'charges:create' %}">➕ ثبت پرداخت جدید</a>
 {% endif %}
-<table class="fund-table">
-<thead><tr><th>واحد</th><th>ساکن واحد</th><th>سال</th><th>ماه</th><th>نوع</th><th>تاریخ</th><th>مبلغ (تومان)</th>{% if user.is_staff %}<th>عملیات</th>{% endif %}</tr></thead>
+</h1>
+<div class="filter-bar filter-collapsible collapsed no-print">
+<button type="button" class="filter-toggle" aria-expanded="false">
+<span>🔍 فیلترها</span>
+{% if filters.unit or filters.year or filters.month or filters.income_type %}<span class="filter-active-dot" title="فیلتر فعال است">●</span>{% endif %}
+<span class="filter-chevron">▾</span>
+</button>
+<div class="filter-collapse">
+<form method="get" class="row g-3 align-items-end">
+<div class="col-md-3 col-6">
+<div class="filter-field">
+<label class="form-label filter-label" for="filter-unit">🏠 شماره واحد</label>
+<select name="unit" id="filter-unit" class="form-control filter-select">
+<option value="">همه موارد</option>
+{% for u in units %}
+<option value="{{ u.number }}"{% if filters.unit == u.number|stringformat:"s" %} selected{% endif %}>{{ u }}</option>
+{% endfor %}
+</select>
+</div>
+</div>
+<div class="col-md-3 col-6">
+<div class="filter-field">
+<label class="form-label filter-label" for="filter-year">📆 سال</label>
+<select name="year" id="filter-year" class="form-control filter-select">
+<option value="">همه موارد</option>
+{% for y in years %}
+<option value="{{ y }}"{% if filters.year == y|stringformat:"s" %} selected{% endif %}>{{ y }}</option>
+{% endfor %}
+</select>
+</div>
+</div>
+<div class="col-md-3 col-6">
+<div class="filter-field">
+<label class="form-label filter-label" for="filter-month">🗓️ ماه</label>
+<select name="month" id="filter-month" class="form-control filter-select">
+<option value="">همه موارد</option>
+{% for num, name in jalali_months %}
+<option value="{{ num }}"{% if filters.month == num|stringformat:"s" %} selected{% endif %}>{{ name }}</option>
+{% endfor %}
+</select>
+</div>
+</div>
+<div class="col-md-3 col-6">
+<div class="filter-field">
+<label class="form-label filter-label" for="filter-type">📋 نوع پرداخت</label>
+<select name="income_type" id="filter-type" class="form-control filter-select">
+<option value="">همه موارد</option>
+{% for t in income_types %}
+<option value="{{ t.pk }}"{% if filters.income_type == t.pk|stringformat:"s" %} selected{% endif %}>{{ t.title }}</option>
+{% endfor %}
+</select>
+</div>
+</div>
+<div class="col-12 filter-actions">
+<button type="submit" class="btn btn-primary">🔍 فیلتر</button>
+<a class="btn btn-secondary" href="{% url 'charges:list' %}">📋 همه رکوردها</a>
+</div>
+</form>
+</div>
+</div>
+<div class="table-scroll"><table class="fund-table">
+<thead><tr><th>ردیف</th><th>نوع درآمد</th><th>واحد</th><th>ساکن واحد</th><th>سال</th><th>ماه</th><th>تاریخ</th><th>مبلغ (تومان)</th><th>توضیحات</th>{% if user.is_staff %}<th>عملیات</th>{% endif %}</tr></thead>
 <tbody>
 {% for p in payments %}
 <tr>
-<td>{{ p.unit.number }}</td><td>{{ p.unit.tenant_name|default:p.unit.owner_name }}</td><td>{{ p.year }}</td><td>{{ p.month_name }}</td>
-<td>{{ p.get_kind_display }}</td>
-<td class="num">{{ p.paid_at|fa_date }}</td><td class="num">{{ p.amount|fa_num }}</td>
-{% if user.is_staff %}<td><a href="{% url 'charges:edit' p.pk %}">ویرایش</a> | <a class="text-danger" href="{% url 'charges:delete' p.pk %}">حذف</a></td>{% endif %}
+<td class="num">{{ forloop.counter|fa_num }}</td><td>{% if p.income_type %}{{ p.income_type.title }}{% else %}{{ p.get_kind_display }}{% endif %}</td><td>{{ p.unit.number }}</td><td>{{ p.resident_name }}</td><td>{{ p.year }}</td><td>{{ p.month_name }}</td>
+<td class="num">{{ p.paid_at|fa_date }}</td><td class="num">{{ p.amount|fa_num }}</td><td>{% if p.description %}<span class="note-tick" title="{{ p.description }}">✔</span>{% else %}—{% endif %}</td>
+{% if user.is_staff %}<td class="row-actions"><a class="action-icon" href="{% url 'charges:edit' p.pk %}" title="ویرایش" aria-label="ویرایش">✏️</a><a class="action-icon text-danger" href="{% url 'charges:delete' p.pk %}" title="حذف" aria-label="حذف">🗑️</a></td>{% endif %}
 </tr>
-{% empty %}<tr><td colspan="8">موردی نیست.</td></tr>{% endfor %}
+{% empty %}<tr><td colspan="10">موردی نیست.</td></tr>{% endfor %}
 </tbody>
-</table>
+</table></div>
+<script>
+(function () {
+  var bar = document.querySelector('.filter-collapsible');
+  if (!bar) return;
+  var btn = bar.querySelector('.filter-toggle');
+  btn.addEventListener('click', function () {
+    var collapsed = bar.classList.toggle('collapsed');
+    btn.setAttribute('aria-expanded', String(!collapsed));
+  });
+})();
+</script>
 {% endblock %}

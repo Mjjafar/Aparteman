@@ -5,19 +5,20 @@
 {% if messages %}
 {% for message in messages %}<div class="alert alert-danger">{{ message }}</div>{% endfor %}
 {% endif %}
-<table class="fund-table">
-<thead><tr><th>عنوان</th><th>نوع</th><th>عملیات</th></tr></thead>
+<div class="table-scroll"><table class="fund-table">
+<thead><tr><th>کد</th><th>عنوان هزینه</th><th>نوع</th><th>عملیات</th></tr></thead>
 <tbody>
 {% for c in categories %}
 <tr>
+<td class="num">{{ c.code }}</td>
 <td>{{ c.title }}</td>
 <td>{% if c.requires_bill_ids %}قبض (شناسه اجباری){% else %}هزینه{% endif %}</td>
-<td><a class="text-danger" href="{% url 'expenses:category-delete' c.pk %}">حذف</a></td>
+<td class="row-actions"><a class="action-icon text-danger" href="{% url 'expenses:category-delete' c.pk %}" title="حذف" aria-label="حذف">🗑️</a></td>
 </tr>
-{% empty %}<tr><td colspan="3">موردی نیست.</td></tr>{% endfor %}
+{% empty %}<tr><td colspan="4">موردی نیست.</td></tr>{% endfor %}
 </tbody>
-</table>
-<h2>نوع جدید</h2>
+</table></div>
+<h2>تعریف هزینه جدید</h2>
 <form method="post" class="pretty-form">{% csrf_token %}
 {% include "_form_fields.html" %}
 <div class="form-actions">

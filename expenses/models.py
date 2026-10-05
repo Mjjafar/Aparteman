@@ -3,9 +3,10 @@ from django.db import models
 
 
 class ExpenseCategory(models.Model):
-    title = models.CharField("عنوان", max_length=100, unique=True)
+    code = models.CharField("کد", max_length=20, unique=True)
+    title = models.CharField("عنوان هزینه", max_length=100, unique=True)
     requires_bill_ids = models.BooleanField(
-        "شناسه قبض/پرداخت اجباری است",
+        "هزینه از نوع قبض است",
         default=False,
         help_text="برای دسته‌های قبض (آب، گاز، برق) فعال کنید.",
     )
@@ -24,15 +25,15 @@ class Expense(models.Model):
         ExpenseCategory, on_delete=models.PROTECT,
         related_name="expenses", verbose_name="نوع مخارج",
     )
-    spent_at = models.DateField("تاریخ هزینه")
+    spent_at = models.DateField("تاریخ هزینه", null=True, blank=True)
     amount = models.PositiveIntegerField("مبلغ (تومان)")
     bill_id = models.CharField("شناسه قبض", max_length=100, blank=True, default="")
     payment_id = models.CharField("شناسه پرداخت", max_length=100, blank=True, default="")
-    description = models.CharField("شرح", max_length=255)
+    description = models.CharField("شرح", max_length=255, blank=True, default="")
     receipt = models.FileField("فاکتور", upload_to="receipts/%Y/%m/", null=True, blank=True)
 
     class Meta:
-        ordering = ["-spent_at"]
+        ordering = ["spent_at", "id"]
         verbose_name = "هزینه"
         verbose_name_plural = "مخارج"
 

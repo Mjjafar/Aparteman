@@ -24,6 +24,33 @@ class Unit(models.Model):
     def __str__(self):
         return f"واحد {self.number}"
 
+    def resident_at(self, year, month):
+        """Tenant name living in this unit during a Jalali year/month.
+
+        Falls back to the current tenant, then the owner, when no
+        tenancy record covers that period.
+        """
+        import jdatetime
+
+        try:
+            year, month = int(year), int(month)
+            month_start = jdatetime.date(year, month, 1).togregorian()
+            if month == 12:
+                month_end = jdatetime.date(year + 1, 1, 1).togregorian()
+            else:
+                month_end = jdatetime.date(year, month + 1, 1).togregorian()
+        except (TypeError, ValueError):
+            return self.tenant_name or self.owner_name
+        rec = (
+            self.tenancies.filter(start_date__lt=month_end)
+            .filter(models.Q(end_date__isnull=True) | models.Q(end_date__gt=month_start))
+            .order_by("-start_date")
+            .first()
+        )
+        if rec:
+            return rec.name
+        return self.tenant_name or self.owner_name
+
 
 class OwnershipHistory(models.Model):
     unit = models.ForeignKey(

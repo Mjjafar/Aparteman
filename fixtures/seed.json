@@ -80,32 +80,36 @@
     "model": "expenses.expensecategory",
     "pk": 1,
     "fields": {
-      "title": "قبض آب",
-      "requires_bill_ids": true
+      "title": "قبض آب مشترک کل ساختمان",
+      "requires_bill_ids": true,
+      "code": "EXP-001"
     }
   },
   {
     "model": "expenses.expensecategory",
     "pk": 2,
     "fields": {
-      "title": "قبض گاز",
-      "requires_bill_ids": true
+      "title": "قبض گاز مشترک کل ساختمان",
+      "requires_bill_ids": true,
+      "code": "EXP-002"
     }
   },
   {
     "model": "expenses.expensecategory",
     "pk": 3,
     "fields": {
-      "title": "قبض برق",
-      "requires_bill_ids": true
+      "title": "قبض برق مشاعات ساختمان",
+      "requires_bill_ids": true,
+      "code": "EXP-003"
     }
   },
   {
     "model": "expenses.expensecategory",
     "pk": 4,
     "fields": {
-      "title": "نظافت",
-      "requires_bill_ids": false
+      "title": "نظافت راه پله ها و مشاعات ساختمان",
+      "requires_bill_ids": false,
+      "code": "EXP-004"
     }
   },
   {
@@ -113,7 +117,8 @@
     "pk": 5,
     "fields": {
       "title": "آسانسور",
-      "requires_bill_ids": false
+      "requires_bill_ids": false,
+      "code": "EXP-005"
     }
   },
   {
@@ -121,7 +126,8 @@
     "pk": 6,
     "fields": {
       "title": "تعمیرات",
-      "requires_bill_ids": false
+      "requires_bill_ids": false,
+      "code": "EXP-006"
     }
   },
   {
@@ -129,7 +135,8 @@
     "pk": 7,
     "fields": {
       "title": "حقوق سرایدار",
-      "requires_bill_ids": false
+      "requires_bill_ids": false,
+      "code": "EXP-007"
     }
   },
   {
@@ -137,7 +144,8 @@
     "pk": 8,
     "fields": {
       "title": "سایر",
-      "requires_bill_ids": false
+      "requires_bill_ids": false,
+      "code": "EXP-008"
     }
   },
   {
@@ -145,7 +153,8 @@
     "pk": 1,
     "fields": {
       "title": "شارژ ماهیانه",
-      "is_charge": true
+      "is_charge": true,
+      "code": "INC-001"
     }
   },
   {
@@ -153,7 +162,8 @@
     "pk": 2,
     "fields": {
       "title": "کمک تعمیرات",
-      "is_charge": false
+      "is_charge": false,
+      "code": "INC-002"
     }
   },
   {
@@ -161,7 +171,8 @@
     "pk": 3,
     "fields": {
       "title": "سایر درآمدها",
-      "is_charge": false
+      "is_charge": false,
+      "code": "INC-003"
     }
   }
 ]

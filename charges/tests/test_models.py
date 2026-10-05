@@ -44,3 +44,15 @@ class ChargePlanTest(TestCase):
             amount=200000, kind="other", description="کمک تعمیرات",
         )
         self.assertEqual(p.kind, "other")
+
+
+class ChargePlanOrderingTest(TestCase):
+    def test_ordered_by_unit_year_start_end_month(self):
+        u2 = Unit.objects.create(number=2, owner_name="ب", owner_phone="09120000001")
+        u1 = Unit.objects.create(number=1, owner_name="الف", owner_phone="09120000000")
+        ChargePlan.objects.create(unit=u1, year=1398, start_month=3, end_month=9, amount=50000)
+        ChargePlan.objects.create(unit=u2, year=1397, start_month=4, end_month=5, amount=30000)
+        ChargePlan.objects.create(unit=u1, year=1397, start_month=6, end_month=12, amount=35000)
+        ChargePlan.objects.create(unit=u1, year=1397, start_month=4, end_month=5, amount=25000)
+        got = [(p.unit.number, p.year, p.start_month, p.end_month) for p in ChargePlan.objects.all()]
+        self.assertEqual(got, [(1, 1397, 4, 5), (1, 1397, 6, 12), (1, 1398, 3, 9), (2, 1397, 4, 5)])

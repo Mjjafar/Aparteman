@@ -33,15 +33,83 @@ body {
   background: #dfe8f0;
 }
 
-/* ===== App shell ===== */
+/* ===== App shell: fixed fundbar (top) + fixed footer (bottom), per-list scroll ===== */
 .page-shell {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   background: linear-gradient(180deg, #dfe8f0 0%, #cfdcea 100%);
 }
 .page-shell main.container {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1030;
+}
+.fundbar {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1020;
+  background: linear-gradient(180deg, #dfe8f0 0%, #cfdcea 100%);
+  padding: 0.75rem 0 0.6rem;
+  box-shadow: 0 2px 10px rgba(22, 50, 79, 0.12);
+}
+.fundbar .fund-card {
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.8rem;
+}
+.fundbar .fund-card span { font-size: 0.78rem; }
+.fundbar .fund-card strong { font-size: 1.1rem; }
+.fundbar .fund-card small { font-size: 0.72rem; }
+.main-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.main-body > .row {
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+.main-body > .row > aside,
+.main-body > .row > section {
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.main-body .side-menu {
+  overflow-y: auto;
+  max-height: 100%;
+  min-height: 0;
+}
+/* The content card fills the middle area; only each list inside it scrolls.
+   Card-level scroll remains as a fallback for form pages without lists. */
+.main-body .content-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.footerbar {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1030;
+  margin-top: 0;
 }
 
 /* ===== Top header bar ===== */
@@ -154,6 +222,7 @@ body {
 .fund-paid { border-top-color: #27ae60; }
 .fund-spent { border-top-color: #c0392b; }
 .fund-balance { border-top-color: #2980b9; }
+.fund-own { border-top-color: #8e44ad; }
 
 /* ===== Main content card ===== */
 .content-card {
@@ -264,6 +333,14 @@ body {
   height: 1.15rem;
   accent-color: #1f5f7a;
 }
+.note-tick {
+  display: inline-block;
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #c0392b;
+  cursor: help;
+}
 .pretty-check label {
   margin: 0;
   font-weight: 500;
@@ -299,12 +376,28 @@ body {
   background: #2c3e50;
   color: #fff;
   font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .fund-table tbody tr:nth-child(odd) {
   background: #dce9f5;
 }
 .fund-table tbody tr:nth-child(even) {
   background: #ffffff;
+}
+.fund-table tbody tr.year-row {
+  background: #cfe0f1;
+  font-weight: 700;
+}
+.fund-table tbody tr.month-row {
+  background: #fdf6e3;
+}
+.fund-table tbody tr.month-row:nth-child(even) {
+  background: #fdf6e3;
+}
+.fund-table tbody tr.month-row:hover {
+  background: #faedc9;
 }
 .fund-table tbody tr:hover {
   background: #bcd6ec;
@@ -313,10 +406,159 @@ body {
   background: #f0e6c8;
   font-weight: 700;
 }
+
+/* ===== Dashboard two-tab lists ===== */
+.dash-tabs {
+  border-bottom: 2px solid #d4e0ea;
+  gap: 0.4rem;
+  margin-bottom: 0;
+}
+.dash-tabs .nav-link {
+  font-family: inherit;
+  font-weight: 700;
+  color: #1f5f7a;
+  border: 1px solid transparent;
+  border-radius: 0.75rem 0.75rem 0 0;
+  padding: 0.55rem 1.3rem;
+}
+.dash-tabs .nav-link:hover {
+  background: #e9f1f8;
+  border-color: #d4e0ea;
+}
+.dash-tabs .nav-link.active {
+  color: #16324f;
+  background: #fff;
+  border-color: #d4e0ea #d4e0ea #fff;
+}
+.dash-tabpanes {
+  background: #fff;
+  border: 1px solid #d4e0ea;
+  border-top: none;
+  border-radius: 0 0 0.75rem 0.75rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.dash-tabpanes > .tab-pane {
+  display: none;
+  min-height: 0;
+}
+.dash-tabpanes > .tab-pane.show.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
 .num {
   direction: rtl;
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/* ===== Per-list scroll: each table gets its own scroll area,
+   filters/headings outside it stay fixed.
+   Only the LAST list stretches to fill the card; earlier lists size
+   naturally so a page with several short lists never double-scrolls.
+   Card-level scroll stays as a fallback for form pages without lists. ===== */
+.content-card > .table-scroll:last-of-type,
+.content-card > .dash-tabpanes {
+  flex: 1 1 auto;
+  min-height: 120px;
+}
+.content-card > .table-scroll:not(:last-of-type) {
+  flex: 0 0 auto;
+  max-height: 38vh;
+}
+.table-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0.75rem;
+  max-height: 100%;
+  min-height: 0;
+}
+.table-scroll .fund-table {
+  min-width: 560px;
+  margin-bottom: 0;
+}
+
+@media (max-width: 767px) {
+  /* On phones the menu stacks above the content, so the middle scrolls
+     as a whole instead of per-list. */
+  .main-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .main-body > .row {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    flex-wrap: wrap;
+  }
+  .main-body > .row > aside,
+  .main-body > .row > section {
+    max-height: none;
+    overflow: visible;
+  }
+  .main-body .content-card {
+    overflow: visible;
+  }
+  .content-card > .table-scroll {
+    max-height: none;
+    overflow-y: visible;
+  }
+  .content-card {
+    padding: 1rem 0.8rem;
+    border-radius: 0.9rem;
+  }
+  .content-card h1 {
+    font-size: 1.1rem;
+  }
+  .fundbar {
+    padding: 0.5rem 0 0.45rem;
+  }
+  .fundbar-row {
+    --bs-gutter-x: 0.5rem;
+    --bs-gutter-y: 0.5rem;
+  }
+  .fundbar .fund-card {
+    padding: 0.45rem 0.4rem;
+    gap: 0.3rem;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .fundbar .fund-card span { font-size: 0.68rem; }
+  .fundbar .fund-card strong {
+    font-size: 0.95rem;
+  }
+  .fundbar .fund-card small { font-size: 0.62rem; }
+  .side-menu {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .side-menu .menu-box {
+    flex: 1 1 45%;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.9rem;
+  }
+  .side-menu .menu-group {
+    flex: 1 1 100%;
+  }
+  .footerbar {
+    font-size: 0.8rem;
+  }
+  .form-actions {
+    flex-direction: column;
+  }
+  .form-actions .btn {
+    width: 100%;
+  }
+  .login-card {
+    padding: 2rem 1.4rem 1.6rem;
+  }
 }
 
 @media print {
@@ -455,4 +697,157 @@ body {
   padding: 0.6rem 0.8rem;
   font-size: 0.85rem;
   margin-bottom: 1rem;
+}
+
+/* ===== Filter bar ===== */
+.filter-bar {
+  background: linear-gradient(180deg, #f8fbfd, #e9f1f8);
+  border: 1px solid #c9d8e4;
+  border-radius: 1rem;
+  box-shadow: 0 0.3rem 1rem rgba(22, 50, 79, 0.1);
+  padding: 1rem 1.1rem 1.1rem;
+  margin-bottom: 1.2rem;
+}
+.filter-title {
+  font-weight: 700;
+  color: #16324f;
+  margin-bottom: 0.7rem;
+  font-size: 1rem;
+}
+.filter-bar .form-label {
+  font-weight: 700;
+  color: #1f5f7a;
+  font-size: 0.88rem;
+  margin-bottom: 0.3rem;
+}
+.filter-select {
+  border-radius: 0.65rem;
+  border: 1px solid #b9c9d8;
+  padding: 0.55rem 0.8rem;
+  background: #fff;
+  font-family: inherit;
+}
+.filter-select:focus {
+  outline: none;
+  border-color: #2e9bb5;
+  box-shadow: 0 0 0 3px rgba(46, 155, 181, 0.18);
+}
+.filter-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+}
+.filter-actions .btn {
+  border-radius: 0.65rem;
+  padding: 0.55rem 1.2rem;
+  font-weight: 700;
+  flex: 1;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .filter-bar {
+    padding: 0.9rem 0.8rem 1rem;
+  }
+}
+
+.filter-field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.filter-label {
+  white-space: nowrap;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+.filter-field .filter-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-total {
+  background: #fff;
+  border: 1px solid #c9d8e4;
+  border-radius: 0.65rem;
+  padding: 0.55rem 1rem;
+  font-weight: 500;
+  color: #16324f;
+  white-space: nowrap;
+}
+.filter-total strong {
+  color: #c0392b;
+  font-size: 1.05rem;
+}
+
+/* ===== Row action icons (replaces ویرایش/حذف text links) ===== */
+.action-icon {
+  display: inline-block;
+  font-size: 1.2rem;
+  line-height: 1;
+  text-decoration: none;
+  padding: 0.2rem 0.35rem;
+  border-radius: 0.45rem;
+  vertical-align: middle;
+}
+.action-icon:hover {
+  background: #e3ebf2;
+  text-decoration: none;
+}
+.action-icon + .action-icon {
+  margin-right: 0.25rem;
+}
+/* Keep row action icons on a single line inside narrow table cells */
+.fund-table td.row-actions {
+  white-space: nowrap;
+}
+
+/* ===== Page head: title + create button on one line ===== */
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.page-head-btn {
+  white-space: nowrap;
+}
+
+/* ===== Collapsible filter bar: one slim row when collapsed ===== */
+.filter-collapsible {
+  padding: 0.55rem 0.8rem;
+}
+.filter-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-weight: 700;
+  color: #16324f;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.15rem 0;
+}
+.filter-active-dot {
+  color: #c0392b;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.filter-chevron {
+  margin-right: auto;
+  font-size: 0.8rem;
+  color: #1f5f7a;
+  transition: transform 0.15s ease;
+}
+.filter-collapsible.collapsed .filter-chevron {
+  transform: rotate(180deg);
+}
+.filter-collapse {
+  padding-top: 0.7rem;
+}
+.filter-collapsible.collapsed .filter-collapse {
+  display: none;
 }

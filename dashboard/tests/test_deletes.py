@@ -42,7 +42,7 @@ class DeleteViewsTest(TestCase):
         self.assertFalse(IncomeType.objects.filter(pk=t.pk).exists())
 
     def test_staff_can_delete_expense_category(self):
-        c = ExpenseCategory.objects.create(title="تست")
+        c = ExpenseCategory.objects.create(code="EXP-T01", title="تست")
         self.client.force_login(self.admin)
         resp = self.client.post(f"/expenses/categories/{c.pk}/delete/")
         self.assertEqual(resp.status_code, 302)
@@ -60,7 +60,7 @@ class DeleteViewsTest(TestCase):
         self.assertFalse(Payment.objects.filter(pk=p.pk).exists())
 
     def test_staff_can_delete_expense(self):
-        c = ExpenseCategory.objects.create(title="تست")
+        c = ExpenseCategory.objects.create(code="EXP-T02", title="تست")
         e = Expense.objects.create(
             category=c, spent_at=datetime.date(2026, 9, 1),
             amount=80000, description="تست",
@@ -71,7 +71,7 @@ class DeleteViewsTest(TestCase):
         self.assertFalse(Expense.objects.filter(pk=e.pk).exists())
 
     def test_category_with_expenses_not_deleted(self):
-        c = ExpenseCategory.objects.create(title="تست")
+        c = ExpenseCategory.objects.create(code="EXP-T03", title="تست")
         Expense.objects.create(
             category=c, spent_at=datetime.date(2026, 9, 1),
             amount=80000, description="تست",

@@ -12,7 +12,7 @@ class ExpenseCategoryForm(forms.ModelForm):
 
 
 class ExpenseForm(forms.ModelForm):
-    spent_at = JalaliDateField(label="تاریخ هزینه")
+    spent_at = JalaliDateField(label="تاریخ هزینه", required=False)
 
     class Meta:
         model = Expense

@@ -1,8 +1,33 @@
+# Python
 .venv/
 __pycache__/
 *.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Django
 data/
 media/
 staticfiles/
+*.sqlite3
+
+# Environment
 .env
-uv.lock
+.env.local
+
+# Test & coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Editors & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Misc
+*.log
+nohup.out

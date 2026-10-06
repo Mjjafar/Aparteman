@@ -1,0 +1,6 @@
+# Keep container-facing files at LF even on Windows checkouts, so
+# `docker compose build` never copies CRLF scripts into the image.
+*.sh text eol=lf
+Dockerfile text eol=lf
+Caddyfile text eol=lf
+*.yml text eol=lf

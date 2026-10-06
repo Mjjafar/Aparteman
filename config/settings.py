@@ -7,7 +7,26 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-insecure-key-change-m
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = [h for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if h]
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if h.strip()]
+
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
+if not CSRF_TRUSTED_ORIGINS:
+    # Sensible default: allow posting forms back to any allowed host over
+    # both http (plain-IP deploys) and https (domain deploys).
+    for _host in ALLOWED_HOSTS:
+        _h = _host.strip().lower().lstrip(".")
+        if _h:
+            CSRF_TRUSTED_ORIGINS.extend([f"http://{_h}", f"https://{_h}"])
+
+# Behind Caddy/Nginx: honor X-Forwarded-Proto so request.is_secure() works.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
+# Only enforce HTTPS redirects/secure cookies when serving real TLS (domain mode).
+# Keep False for plain-IP (HTTP) deploys, otherwise login/CSRF breaks.
+SECURE_SSL_REDIRECT = os.environ.get("DJANGO_SECURE_SSL_REDIRECT", "False") == "True"
+SESSION_COOKIE_SECURE = os.environ.get("DJANGO_SESSION_COOKIE_SECURE", "False") == "True"
+CSRF_COOKIE_SECURE = os.environ.get("DJANGO_CSRF_COOKIE_SECURE", "False") == "True"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -78,6 +97,13 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+# Unset STATICFILES_DIRS paths must not break collectstatic inside Docker.
+if not STATICFILES_DIRS[0].exists():
+    STATICFILES_DIRS = []
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"

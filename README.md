@@ -29,17 +29,60 @@ index-url = "https://repo.hmirror.ir/python/simple/"
 
 ## استقرار روی VPS با Docker
 
+پیش‌نیاز روی سرور: Docker + Docker Compose plugin و باز بودن پورت‌های 80 و
+443 (برای حالت دامنه).
+
 ```bash
-cp .env.example .env   # و مقادیر را عوض کنید
+git clone <repo-url> /opt/aparteman && cd /opt/aparteman
+cp .env.example .env
+nano .env   # SECRET_KEY، رمز ادمین و هاست‌ها را عوض کنید
 docker compose up -d --build
-# ساخت ادمین داخل کانتینر:
-docker compose exec web uv run python manage.py createsuperuser
-# لود دیتای اولیه:
-docker compose exec web uv run python manage.py loaddata fixtures/seed.json
+docker compose logs -f web   # صبر کنید تا migrate تمام شود
 ```
 
-سایت روی پورت 8000 بالا می‌آید. دیتابیس SQLite در `./data` و فاکتورها در
-`./media` ذخیره می‌شوند (volume شده‌اند، با rebuild پاک نمی‌شوند).
+ادمین به‌صورت خودکار از `DJANGO_SUPERUSER_*` ساخته می‌شود. دیتابیس SQLite
+در `./data` و فاکتورها در `./media` ذخیره می‌شوند (volume شده‌اند، با rebuild
+پاک نمی‌شوند).
+
+### حالت ۱: فقط IP (بدون دامنه، HTTP)
+
+```env
+DJANGO_ALLOWED_HOSTS=1.2.3.4
+SITE_ADDRESS=:80
+```
+
+بعد سایت روی `http://1.2.3.4` بالا می‌آید.
+
+### حالت ۲: دامنه (HTTPS خودکار با Let's Encrypt)
+
+اول رکورد A دامنه را به IP سرور بدهید، بعد:
+
+```env
+DJANGO_ALLOWED_HOSTS=example.com,www.example.com
+SITE_ADDRESS=example.com
+DJANGO_SECURE_SSL_REDIRECT=True
+DJANGO_SESSION_COOKIE_SECURE=True
+DJANGO_CSRF_COOKIE_SECURE=True
+```
+
+Caddy خودش گواهی می‌گیرد و تمدید می‌کند. سایت روی `https://example.com`
+بالا می‌آید.
+
+### لود دیتای اولیه (فقط دیپلوی اول)
+
+```bash
+# در .env بگذارید LOAD_SEED=True و یک بار ری‌استارت کنید:
+docker compose up -d --force-recreate web
+# بعد حتماً برگردانید به LOAD_SEED=False تا استقرارهای بعدی تکراری لود نکند.
+```
+
+### به‌روزرسانی نسخه جدید
+
+```bash
+git pull
+docker compose up -d --build
+# migrate به‌صورت خودکار در entrypoint اجرا می‌شود.
+```
 
 ## بکاپ
 

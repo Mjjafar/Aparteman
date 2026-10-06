@@ -1,0 +1,7 @@
+# Caddy reverse proxy in front of the Django app.
+# SITE_ADDRESS comes from .env so one compose file covers both modes:
+#   - plain IP / local:      SITE_ADDRESS=:80        -> plain HTTP
+#   - real domain:           SITE_ADDRESS=example.com -> automatic HTTPS (Let's Encrypt)
+{$SITE_ADDRESS:80} {
+	reverse_proxy web:8000
+}

@@ -1,0 +1,47 @@
+{% load fa_digits %}
+<div class="notice-doc">
+  <h2 class="notice-title">صورت‌حساب پرداخت حق شارژ</h2>
+  <div class="notice-subtitle">{{ notice.period_display }}</div>
+  {% if notice.work_title %}
+  <div class="notice-subtitle">به همراه حق السهم بابت {{ notice.work_title }}</div>
+  {% endif %}
+  <div class="table-scroll">
+    <table class="fund-table notice-table">
+      <thead>
+        <tr>
+          <th>شماره واحد</th>
+          <th>نام ساکن واحد</th>
+          <th>حق شارژ (تومان)</th>
+          <th>حق السهم بابت {{ notice.work_title|default:"کار" }} (تومان)</th>
+          <th>مبلغ قابل پرداخت (تومان)</th>
+          <th>وضعیت پرداخت</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td class="num">{{ row.unit.number|fa_num }}</td>
+          <td class="resident-cell">{{ row.resident_name|default:"—" }}</td>
+          <td class="num">{{ row.charge_amount|fa_num }}</td>
+          <td class="num">{{ row.work_share|fa_num }}</td>
+          <td class="num payable-cell">{{ row.payable|fa_num }}</td>
+          <td class="status-{{ row.status.code }}">
+            {% if row.status.code == "paid" %}پرداخت شده{% elif row.status.code == "partial" %}جزئی ({{ row.status.paid_count|fa_num }} از {{ row.status.total|fa_num }} ماه){% else %}پرداخت نشده{% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">واحدی ثبت نشده است.</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2">جمع کل</td>
+          <td class="num">{{ totals.charge|fa_num }}</td>
+          <td class="num">{{ totals.work|fa_num }}</td>
+          <td class="num">{{ totals.payable|fa_num }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>

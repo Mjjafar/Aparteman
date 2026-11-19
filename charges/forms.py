@@ -7,9 +7,26 @@ from charges.models import ChargePlan, IncomeType, Payment
 from config.jalali_forms import JalaliDateField, JalaliMonthField
 
 
+class IncomeTypeSelect(forms.Select):
+    """Marks each option so the payment form can show charge fields only for charge types."""
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        income_type = getattr(value, "instance", None)
+        if income_type is not None:
+            option["attrs"]["data-is-charge"] = "1" if income_type.is_charge else "0"
+        return option
+
+
 class PaymentForm(forms.ModelForm):
     paid_at = JalaliDateField(label="تاریخ پرداخت", required=False)
     month = JalaliMonthField(label="ماه", required=False)
+    income_type = forms.ModelChoiceField(
+        queryset=IncomeType.objects.all(),
+        label="نوع درآمد",
+        required=False,
+        widget=IncomeTypeSelect(),
+    )
     charge_amount = forms.IntegerField(
         label="مبلغ شارژ (تومان)",
         required=False,
@@ -40,20 +57,6 @@ class PaymentForm(forms.ModelForm):
         )
         self.order_fields(["unit", "income_type", "year", "month", "charge_amount", "paid_at", "amount", "description"])
         self._fill_charge_amount()
-
-    def _selected_income_type(self):
-        data = self.data or {}
-        try:
-            type_id = data.get("income_type") or getattr(self.instance, "income_type_id", None)
-            if type_id:
-                return IncomeType.objects.filter(pk=type_id).first()
-        except (TypeError, ValueError):
-            pass
-        return getattr(self.instance, "income_type", None)
-
-    def _is_charge(self):
-        income_type = self._selected_income_type()
-        return income_type.is_charge if income_type else False
 
     def _plan_for(self, unit, year, month):
         if not (unit and year and month):
@@ -106,17 +109,12 @@ class PaymentForm(forms.ModelForm):
         self.instance.income_type = income_type
         if is_charge and not cleaned.get("month"):
             self.add_error("month", "برای شارژ ماهیانه، ماه اجباری است.")
-        if not is_charge:
-            cleaned["month"] = None
-            self.instance.month = None
         return cleaned
 
     def save(self, commit=True):
         obj = super().save(commit=False)
         if obj.income_type_id:
             obj.kind = "charge" if obj.income_type.is_charge else "other"
-            if obj.kind == "other":
-                obj.month = None
         if commit:
             obj.save()
         return obj
@@ -125,23 +123,6 @@ class PaymentForm(forms.ModelForm):
         amount = self.cleaned_data.get("amount")
         if amount is None or amount <= 0:
             raise forms.ValidationError("مبلغ پرداختی باید بیشتر از صفر باشد.")
-        if not self._is_charge():
-            return amount
-        data = self.data or {}
-        unit = None
-        try:
-            unit_id = data.get("unit") or getattr(self.instance, "unit_id", None)
-            if unit_id:
-                unit = self.fields["unit"].queryset.filter(pk=unit_id).first()
-        except (TypeError, ValueError):
-            unit = None
-        year = data.get("year") or getattr(self.instance, "year", None)
-        month = data.get("month") or getattr(self.instance, "month", None)
-        plan = self._plan_for(unit, year, month)
-        if plan is not None and amount > plan.amount:
-            raise forms.ValidationError(
-                f"مبلغ پرداختی نمی‌تواند از مبلغ شارژ ({plan.amount:,} تومان) بیشتر باشد."
-            )
         return amount
 
 

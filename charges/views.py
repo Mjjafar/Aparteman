@@ -39,7 +39,10 @@ def payment_update(request, pk):
 def payment_list(request):
     from config.jalali_forms import JALALI_MONTH_CHOICES
 
-    payments = Payment.objects.select_related("unit", "income_type")
+    payments = (
+        Payment.objects.select_related("unit", "income_type")
+        .order_by("-year", "-month", "unit__number", "income_type__code")
+    )
     if not request.user.is_staff:
         payments = payments.filter(unit__user=request.user)
 

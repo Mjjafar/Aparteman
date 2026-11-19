@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load fa_digits %}
+{% block title %}اطلاعیه‌های حق شارژ{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  <h1 class="mb-0">📄 اطلاعیه‌های حق شارژ</h1>
+  <a class="btn btn-primary" href="{% url 'notices:create' %}">➕ اطلاعیه جدید</a>
+</div>
+<div class="table-scroll">
+  <table class="fund-table">
+    <thead>
+      <tr>
+        <th>ردیف</th>
+        <th>دوره</th>
+        <th>کار</th>
+        <th>تعداد واحد</th>
+        <th>تاریخ ثبت</th>
+        <th>عملیات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for n in notices %}
+      <tr>
+        <td class="num">{{ forloop.counter|fa_num }}</td>
+        <td>{{ n.period_display }}</td>
+        <td>{{ n.work_title|default:"—" }}</td>
+        <td class="num">{{ n.rows.all|length|fa_num }}</td>
+        <td class="num">{{ n.created_at|fa_date }}</td>
+        <td>
+          <a class="btn btn-sm btn-primary" href="{% url 'notices:detail' n.pk %}">نمایش و چاپ</a>
+          <a class="btn btn-sm btn-danger" href="{% url 'notices:delete' n.pk %}">حذف</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6">هنوز اطلاعیه‌ای ثبت نشده است. با دکمه «اطلاعیه جدید» اولین فرم را بسازید.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load fa_digits %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>📄 {{ title }}</h1>
+<p class="form-text mb-3">سال و ماه‌های مورد نظر را انتخاب کنید؛ مبلغ حق شارژ هر واحد خودکار از «میزان حق شارژ» تشخیص داده می‌شود. حق السهم بابت کار اختیاری است.</p>
+<form method="post" class="pretty-form">{% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="mb-3 pretty-field {% if form.year.errors %}has-error{% endif %}">
+        <label class="form-label" for="{{ form.year.id_for_label }}"><span class="field-icon">📆</span> {{ form.year.label }} <span class="req">*</span></label>
+        {{ form.year }}
+        {% for error in form.year.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="mb-3 pretty-field {% if form.work_title.errors %}has-error{% endif %}">
+        <label class="form-label" for="{{ form.work_title.id_for_label }}"><span class="field-icon">🛠️</span> {{ form.work_title.label }}</label>
+        {{ form.work_title }}
+        {% for error in form.work_title.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="mb-3 pretty-field {% if form.work_amount.errors %}has-error{% endif %}">
+        <label class="form-label" for="{{ form.work_amount.id_for_label }}"><span class="field-icon">💰</span> {{ form.work_amount.label }}</label>
+        {{ form.work_amount }}
+        {% for error in form.work_amount.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-3 pretty-field {% if form.months.errors %}has-error{% endif %}">
+    <label class="form-label"><span class="field-icon">🗓️</span> {{ form.months.label }} <span class="req">*</span></label>
+    <div class="months-grid">
+      {% for checkbox in form.months %}
+      <div class="pretty-check">{{ checkbox.tag }}<label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label></div>
+      {% endfor %}
+    </div>
+    {% for error in form.months.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+  </div>
+
+  <div class="form-actions no-print">
+    <button type="submit" name="action" value="preview" class="btn btn-primary">🔍 پیش‌نمایش</button>
+    <button type="submit" name="action" value="save" class="btn btn-success">💾 ذخیره و ثبت اطلاعیه</button>
+    <a class="btn btn-secondary" href="{% url 'notices:list' %}">بازگشت</a>
+  </div>
+
+  {% if preview_rows %}
+  <hr class="no-print">
+  {% if missing_plans %}
+  <div class="alert alert-warning no-print">
+    <strong>توجه:</strong> برای این موارد تعرفه حق شارژ ثبت نشده و مبلغ صفر در نظر گرفته شده است:
+    <ul class="mb-0">
+      {% for item in missing_plans %}
+      <li>{{ item.unit }} — {{ item.months_display }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 no-print">
+    <h2 class="mb-0">پیش‌نمایش فرم</h2>
+    <button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ چاپ پیش‌نمایش</button>
+  </div>
+  {% include "notices/_notice_document.html" with notice=draft rows=preview_rows totals=totals %}
+  <p class="form-text no-print">وضعیت پرداخت به‌صورت زنده از پرداخت‌های ثبت‌شده محاسبه می‌شود. اگر مقادیر درست است، «ذخیره و ثبت اطلاعیه» را بزنید؛ فرم در سامانه ذخیره می‌شود و بعداً قابل نمایش و چاپ است.</p>
+  <div class="form-actions no-print">
+    <button type="submit" name="action" value="save" class="btn btn-success">💾 ذخیره و ثبت اطلاعیه</button>
+    <button type="submit" name="action" value="preview" class="btn btn-primary">🔍 به‌روزرسانی پیش‌نمایش</button>
+  </div>
+  {% endif %}
+</form>
+{% endblock %}
+{% block print_content %}
+{% if preview_rows %}{% include "notices/_notice_document.html" with notice=draft rows=preview_rows totals=totals %}{% endif %}
+{% endblock %}

@@ -107,10 +107,10 @@ class ExpenseListFilterTest(TestCase):
         self.admin = User.objects.create_superuser("admin", "a@x.ir", "pass12345")
         self.client.force_login(self.admin)
 
-    def test_ordered_by_date_oldest_first(self):
+    def test_ordered_by_date_newest_first(self):
         resp = self.client.get("/expenses/")
         got = list(resp.context["expenses"].values_list("amount", flat=True))
-        self.assertEqual(got, [200, 100, 300])
+        self.assertEqual(got, [100, 200, 300])
 
     def test_filter_by_category(self):
         resp = self.client.get(f"/expenses/?category={self.c1.pk}")

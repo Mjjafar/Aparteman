@@ -15,7 +15,9 @@ fi
 # Apply migrations on every (re)start so VPS redeploys stay current.
 uv run --no-sync python manage.py migrate --noinput
 
-# Auto-create the admin user from env vars on first deploy.
+# Auto-create the admin user from env vars on FIRST deploy only.
+# An existing user is never modified, so changing the password later
+# (or restarting the container) can't silently reset it.
 if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
   uv run --no-sync python - <<'EOF' || true
 import os
@@ -30,12 +32,15 @@ username = os.environ.get("DJANGO_SUPERUSER_USERNAME")
 password = os.environ.get("DJANGO_SUPERUSER_PASSWORD")
 email = os.environ.get("DJANGO_SUPERUSER_EMAIL", "admin@example.com")
 if username and password:
-    user, created = User.objects.update_or_create(
+    user, created = User.objects.get_or_create(
         username=username, defaults={"email": email, "is_staff": True, "is_superuser": True}
     )
-    user.set_password(password)
-    user.save()
-    print(f"Superuser '{username}' ensured ({'created' if created else 'updated'}).")
+    if created:
+        user.set_password(password)
+        user.save()
+        print(f"Superuser '{username}' created.")
+    else:
+        print(f"Superuser '{username}' already exists; password left unchanged.")
 EOF
 fi
 

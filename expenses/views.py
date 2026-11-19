@@ -40,7 +40,7 @@ def expense_update(request, pk):
 def expense_list(request):
     from django.db.models import Sum
 
-    expenses = Expense.objects.select_related("category")
+    expenses = Expense.objects.select_related("category").order_by("-spent_at", "-id")
     category_id = request.GET.get("category", "").strip()
     if category_id:
         expenses = expenses.filter(category_id=category_id)

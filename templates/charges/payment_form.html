@@ -17,28 +17,43 @@ $(function () {
   var unitSel = $('#id_unit');
   var yearInput = $('#id_year');
   var monthInput = $('#id_month');
+  var typeSel = $('#id_income_type');
   var chargeInput = $('#id_charge_amount');
+  var chargeField = chargeInput.closest('.pretty-field');
   var amountInput = $('#id_amount');
 
+  function isChargeType() {
+    return typeSel.find('option:selected').attr('data-is-charge') === '1';
+  }
+
+  function toggleChargeField() {
+    if (isChargeType()) {
+      chargeField.show();
+    } else {
+      chargeField.hide();
+      chargeInput.val('');
+    }
+  }
+
   function fetchCharge(autofillAmount) {
+    if (!isChargeType()) return;
     var unit = unitSel.val();
     var year = yearInput.val();
     var month = monthInput.val();
     if (!unit || !year || !month) return;
     $.getJSON("{% url 'charges:charge-amount' %}", {unit: unit, year: year, month: month})
       .done(function (data) {
-        if (data.amount != null) {
-          chargeInput.val(data.amount);
-          if (autofillAmount) amountInput.val(data.amount);
-          amountInput.attr('max', data.amount);
-        } else {
-          chargeInput.val('');
-          amountInput.removeAttr('max');
-        }
+        chargeInput.val(data.amount != null ? data.amount : '');
+        if (autofillAmount && data.amount != null) amountInput.val(data.amount);
       });
   }
 
+  typeSel.on('change', function () {
+    toggleChargeField();
+    if (isChargeType()) fetchCharge(amountInput.val() === '');
+  });
   unitSel.add(yearInput).add(monthInput).on('change', function () { fetchCharge(true); });
+  toggleChargeField();
   fetchCharge(false);
 });
 </script>

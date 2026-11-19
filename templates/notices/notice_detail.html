@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}اطلاعیه {{ notice.period_display }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 no-print">
+  <h1 class="mb-0">📄 اطلاعیه پرداخت</h1>
+  <div class="d-flex gap-2 flex-wrap">
+    <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ چاپ فرم</button>
+    <a class="btn btn-secondary" href="{% url 'notices:list' %}">بازگشت به لیست</a>
+    <a class="btn btn-danger" href="{% url 'notices:delete' notice.pk %}">حذف</a>
+  </div>
+</div>
+{% include "notices/_notice_document.html" %}
+<p class="form-text no-print">وضعیت پرداخت به‌صورت زنده از پرداخت‌های ثبت‌شده محاسبه می‌شود؛ اگر پرداخت جدیدی ثبت شود، همین صفحه را دوباره چاپ کنید تا وضعیت به‌روز شود.</p>
+{% endblock %}
+{% block print_content %}{% include "notices/_notice_document.html" %}{% endblock %}

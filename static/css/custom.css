@@ -851,3 +851,74 @@ body {
 .filter-collapsible.collapsed .filter-collapse {
   display: none;
 }
+
+/* ===== Notice (اطلاعیه حق شارژ) ===== */
+.months-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem 0.9rem;
+}
+.months-grid .pretty-check {
+  margin: 0;
+}
+.notice-doc {
+  padding: 0.25rem 0 0.5rem;
+}
+.notice-title {
+  text-align: center;
+  font-weight: 800;
+  color: #16324f;
+  margin-bottom: 0.35rem;
+}
+.notice-subtitle {
+  text-align: center;
+  font-weight: 600;
+  color: #1f5f7a;
+  margin-bottom: 0.35rem;
+}
+.notice-table th,
+.notice-table td {
+  text-align: center;
+  vertical-align: middle;
+}
+.notice-table td.resident-cell {
+  text-align: right;
+}
+.notice-table td.payable-cell {
+  font-weight: 800;
+}
+.notice-table .status-paid {
+  color: #1e7d32;
+  font-weight: 800;
+}
+.notice-table .status-partial {
+  color: #b26a00;
+  font-weight: 700;
+}
+.notice-table .status-unpaid {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .months-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media print {
+  .notice-doc {
+    padding: 0;
+  }
+  .notice-title {
+    font-size: 1.25rem;
+  }
+  .notice-table {
+    font-size: 0.85rem;
+  }
+  .notice-table .status-paid,
+  .notice-table .status-partial,
+  .notice-table .status-unpaid {
+    color: #000 !important;
+  }
+}

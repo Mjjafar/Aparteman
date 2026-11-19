@@ -45,6 +45,9 @@
         <nav class="side-menu">
           <a class="menu-box" href="{% url 'dashboard:home' %}"><span class="menu-icon">📊</span><span>داشبورد</span></a>
           <a class="menu-box" href="{% url 'dashboard:statement' %}"><span class="menu-icon">🧾</span><span>صورت‌حساب</span></a>
+          {% if user.is_staff %}
+          <a class="menu-box" href="{% url 'notices:list' %}"><span class="menu-icon">📄</span><span>اطلاعیه حق شارژ</span></a>
+          {% endif %}
           <a class="menu-box" href="{% url 'charges:list' %}"><span class="menu-icon">💰</span><span>پرداخت‌ها</span></a>
           <a class="menu-box" href="{% url 'expenses:list' %}"><span class="menu-icon">🧺</span><span>هزینه‌ها</span></a>
           {% if user.is_staff %}

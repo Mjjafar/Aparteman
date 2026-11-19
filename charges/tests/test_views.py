@@ -144,7 +144,9 @@ class PaymentChargeAutofillTest(TestCase):
         self.assertNotIn("payer_name", form.fields)
         self.assertIn("charge_amount", form.fields)
 
-    def test_amount_above_charge_rejected(self):
+    def test_amount_above_charge_accepted(self):
+        from charges.models import Payment
+
         resp = self.client.post(
             "/payments/new/",
             {
@@ -153,8 +155,8 @@ class PaymentChargeAutofillTest(TestCase):
                 "paid_at": "1405/07/01", "amount": 600000, "income_type": ensure_charge_type().pk,
             },
         )
-        self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "بیشتر باشد")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Payment.objects.get().amount, 600000)
 
     def test_zero_amount_rejected(self):
         resp = self.client.post(
@@ -374,7 +376,7 @@ class IncomeTypeAutoCodeTest(TestCase):
 
 
 class PaymentListOrderingTest(TestCase):
-    def test_ordered_by_income_year_month_unit_with_row_numbers(self):
+    def test_ordered_by_year_month_desc_unit_asc_with_row_numbers(self):
         import datetime
 
         u2 = Unit.objects.create(number=2, owner_name="ب", owner_phone="09120000001")
@@ -386,11 +388,20 @@ class PaymentListOrderingTest(TestCase):
         Payment.objects.create(unit=u1, year=1405, month=2, paid_at=datetime.date(2026, 9, 1), amount=100, kind="charge", income_type=t1)
         Payment.objects.create(unit=u2, year=1404, month=None, paid_at=datetime.date(2026, 9, 2), amount=200, kind="other", income_type=t2)
         Payment.objects.create(unit=u1, year=1405, month=1, paid_at=datetime.date(2026, 9, 3), amount=100, kind="charge", income_type=t1)
+        Payment.objects.create(unit=u2, year=1405, month=2, paid_at=datetime.date(2026, 9, 4), amount=100, kind="charge", income_type=t1)
         admin = User.objects.create_superuser("admin", "a@x.ir", "pass12345")
         self.client.force_login(admin)
         resp = self.client.get("/payments/")
         rows = list(resp.context["payments"].values_list("income_type__code", "year", "month", "unit__number"))
-        self.assertEqual(rows, [("INC-001", 1405, 1, 1), ("INC-001", 1405, 2, 1), ("INC-002", 1404, None, 2)])
+        self.assertEqual(
+            rows,
+            [
+                ("INC-001", 1405, 2, 1),
+                ("INC-001", 1405, 2, 2),
+                ("INC-001", 1405, 1, 1),
+                ("INC-002", 1404, None, 2),
+            ],
+        )
         self.assertContains(resp, "ردیف")
 
 
@@ -480,6 +491,12 @@ class PaymentIncomeTypeFieldTest(TestCase):
         labels = [c[1] for c in form.fields["income_type"].choices if c[0]]
         self.assertTrue(any("شارژ ماهیانه" in label for label in labels))
 
+    def test_income_type_options_flag_charge_kind(self):
+        resp = self.client.get("/payments/new/")
+        html = resp.content.decode()
+        self.assertIn(f'<option value="{self.charge_type.pk}" data-is-charge="1"', html)
+        self.assertIn(f'<option value="{self.repair_type.pk}" data-is-charge="0"', html)
+
     def test_charge_payment_requires_month(self):
         resp = self.client.post(
             "/payments/new/",
@@ -508,6 +525,32 @@ class PaymentIncomeTypeFieldTest(TestCase):
         self.assertEqual(p.kind, "other")
         self.assertIsNone(p.month)
         self.assertEqual(p.income_type.code, "INC-002")
+
+    def test_other_income_saves_month_on_create_and_edit(self):
+        from charges.models import Payment
+
+        resp = self.client.post(
+            "/payments/new/",
+            {
+                "unit": self.unit.pk, "year": 1405, "month": 6,
+                "income_type": self.repair_type.pk,
+                "paid_at": "1405/06/20", "amount": 200000,
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        p = Payment.objects.get()
+        self.assertEqual(p.month, 6)
+        resp = self.client.post(
+            f"/payments/{p.pk}/edit/",
+            {
+                "unit": self.unit.pk, "year": 1405, "month": 7,
+                "income_type": self.repair_type.pk,
+                "paid_at": "1405/06/20", "amount": 200000,
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        p.refresh_from_db()
+        self.assertEqual(p.month, 7)
 
 
 class PaymentListFilterTest(TestCase):
@@ -555,7 +598,7 @@ class PaymentListFilterTest(TestCase):
     def test_all_option_present(self):
         resp = self.client.get("/payments/")
         self.assertContains(resp, "همه موارد")
-        self.assertContains(resp, "نمایش لیست همه رکوردها")
+        self.assertContains(resp, "همه رکوردها")
 
 
 class PaymentResidentNameTest(TestCase):

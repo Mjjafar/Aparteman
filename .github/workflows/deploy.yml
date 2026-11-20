@@ -1,0 +1,34 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd aparteman
+
+            # backup the db with a timestamp
+            mkdir -p backup
+            cp data/db.sqlite3 "backup/db_$(date +%Y-%m-%d_%H-%M-%S).sqlite3"
+
+            git pull origin main
+
+            docker compose up -d --build --remove-orphans
+            docker image prune -f
